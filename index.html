@@ -58,14 +58,14 @@
             <button onclick="toggleLoginModal(false)" class="absolute top-6 right-6 p-2 text-slate-400"><i data-lucide="x"></i></button>
             <div class="w-20 h-20 bg-primary/10 text-primary rounded-3xl flex items-center justify-center mx-auto"><i data-lucide="graduation-cap" class="w-10 h-10"></i></div>
             <h2 class="text-3xl font-black mb-2">Welcome Back</h2>
-            <p class="text-slate-500">Apne email se login karein taki aapke purchases humesha safe rahein.</p>
+            <p class="text-slate-500">Login to your account to keep your purchases synced and secure.</p>
             <button onclick="handleLogin()" class="w-full flex items-center justify-center gap-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 py-4 rounded-2xl font-bold shadow-xl active:scale-95 transition-all">
                 <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/action/google.svg" class="w-6 h-6"> Continue with Google
             </button>
         </div>
     </div>
 
-    <!-- ✅ Fixed Navigation -->
+    <!-- ✅ Navigation Bar -->
     <nav id="main-nav" class="fixed top-0 w-full z-40 glass border-b border-white/20 dark:border-slate-800">
         <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
             <div class="flex items-center gap-4">
@@ -80,6 +80,7 @@
                 </button>
             </div>
         </div>
+        <!-- Search Overlay -->
         <div id="search-overlay" class="hidden absolute top-16 left-0 w-full glass border-b p-4 fade-up">
             <div class="max-w-3xl mx-auto relative">
                 <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"></i>
@@ -95,7 +96,7 @@
         <div class="p-6 h-full flex flex-col">
             <div class="flex items-center gap-3 mb-8">
                 <img id="user-avatar" src="" class="w-10 h-10 rounded-full border-2 border-primary hidden">
-                <div id="user-info" class="hidden"><p class="font-bold text-sm" id="user-name">User</p><p class="text-[10px] opacity-50 uppercase font-bold">Premium Account</p></div>
+                <div id="user-info" class="hidden"><p class="font-bold text-sm" id="user-name">User</p><p class="text-[10px] opacity-50 uppercase font-bold text-primary">Student Profile</p></div>
                 <div id="guest-info"><p class="font-bold text-sm">Guest User</p><button onclick="toggleLoginModal(true)" class="text-[10px] text-primary font-bold uppercase underline">Login Now</button></div>
             </div>
             <nav class="space-y-1 flex-1">
@@ -113,22 +114,23 @@
         </div>
     </div>
 
-    <!-- ✅ Secure PDF Viewer -->
+    <!-- ✅ Secure Viewer Modal -->
     <div id="pdf-viewer-modal" class="fixed inset-0 z-[120] bg-black/95 hidden flex flex-col">
         <div class="p-4 flex items-center justify-between text-white glass">
-            <h3 id="viewer-title" class="font-bold">PDF Content</h3>
+            <h3 id="viewer-title" class="font-bold">Premium Content</h3>
             <button onclick="closePDF()" class="p-2 rounded-full hover:bg-white/20"><i data-lucide="x"></i></button>
         </div>
         <div class="flex-1 bg-slate-100"><iframe id="pdf-iframe" src="" sandbox="allow-scripts allow-same-origin"></iframe></div>
     </div>
 
+    <!-- ✅ App Viewport -->
     <main id="app-view" class="pt-20 pb-24 px-4 max-w-7xl mx-auto min-h-screen"></main>
     
     <div id="toast" class="hidden toast bg-slate-900 text-white px-6 py-3 rounded-full font-bold shadow-2xl fade-up fixed bottom-8 left-1/2 -translate-x-1/2 z-[200] flex items-center gap-2">
         <i data-lucide="check-circle" class="text-green-400 w-5 h-5"></i><span id="toast-msg">Success!</span>
     </div>
 
-    <!-- ✅ FIREBASE & LOGIC -->
+    <!-- ✅ DATA & FIREBASE SECTION -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInWithPopup, signInAnonymously, GoogleAuthProvider, onAuthStateChanged, signOut, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -140,71 +142,102 @@
         
         const CONFIG = {
             WHATSAPP_NUMBER: "918229084161", 
-            UPI_ID: "8229084161@okaxis",      // Apni UPI ID yahan dalein
+            UPI_ID: "8229084161@okaxis",      
             MERCHANT_NAME: "EduDigital Store",
-            FIREBASE_CONFIG: null,           // Apka Firebase JSON Config yahan paste karein
+            
+            // Your Integrated Firebase Configuration
+            FIREBASE_CONFIG: {
+                apiKey: "AIzaSyCD2oJM0OzhhwI_prJSde4AI55lVJKqeE4",
+                authDomain: "edudigitaltejas.firebaseapp.com",
+                projectId: "edudigitaltejas",
+                storageBucket: "edudigitaltejas.firebasestorage.app",
+                messagingSenderId: "406008404106",
+                appId: "1:406008404106:web:d16167d902776b6de17573"
+            }
         };
 
         const STORE_DATA = {
             categories: ['All', 'Notes', 'Mind Map', 'PDFs'],
             banners: [
-                { title: "Ace Your Exams", sub: "Handwritten notes for Class 12", img: "https://images.unsplash.com/photo-1517842645767-c639042777db?auto=format&fit=crop&q=80&w=1200" },
-                { title: "Visual Learning", sub: "Fast revision with Mind Maps", img: "https://images.unsplash.com/photo-1544391496-1ca7c97457cd?auto=format&fit=crop&q=80&w=1200" },
-                { title: "Premium Access", sub: "Get 95%+ marks easily", img: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&q=80&w=1200" }
+                { title: "Ace Your Exams", sub: "Premium handwritten notes for Class 12", img: "https://images.unsplash.com/photo-1517842645767-c639042777db?auto=format&fit=crop&q=80&w=1200" },
+                { title: "Visual Revision", sub: "Quick revision using Mind Maps", img: "https://images.unsplash.com/photo-1544391496-1ca7c97457cd?auto=format&fit=crop&q=80&w=1200" },
+                { title: "Success Toolkit", sub: "Curated resources for toppers", img: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&q=80&w=1200" }
             ],
             products: [
-                { id: 101, name: "Physics Class 12 Notes", cat: "Notes", price: 199, img: "https://images.unsplash.com/photo-1636466484294-281069788218?auto=format&fit=crop&q=80&w=400", pdf: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf", desc: "Handwritten Physics notes with PYQs." },
-                { id: 102, name: "Chemistry Mind Map", cat: "Mind Map", price: 99, img: "https://images.unsplash.com/photo-1532187875661-1459a9f5adc9?auto=format&fit=crop&q=80&w=400", pdf: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf", desc: "Organic reactions visual map." },
-                { id: 103, name: "Math Formula Sheet", cat: "PDFs", price: 49, img: "https://images.unsplash.com/photo-1509228468518-180dd48a5811?auto=format&fit=crop&q=80&w=400", pdf: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf", desc: "Quick calculus revision sheet." },
+                { 
+                    id: 101, 
+                    name: "Physics Class 12 Notes", 
+                    cat: "Notes", 
+                    price: 199, 
+                    img: "https://images.unsplash.com/photo-1636466484294-281069788218?auto=format&fit=crop&q=80&w=400", 
+                    pdf: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+                    desc: "Handwritten Physics notes covering full syllabus with PYQs."
+                },
+                { 
+                    id: 102, 
+                    name: "Chemistry Mind Map", 
+                    cat: "Mind Map", 
+                    price: 99, 
+                    img: "https://images.unsplash.com/photo-1532187875661-1459a9f5adc9?auto=format&fit=crop&q=80&w=400", 
+                    pdf: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+                    desc: "Visual mind map of Organic and Inorganic reactions."
+                },
+                { 
+                    id: 103, 
+                    name: "Maths Formula Pack", 
+                    cat: "PDFs", 
+                    price: 49, 
+                    img: "https://images.unsplash.com/photo-1509228468518-180dd48a5811?auto=format&fit=crop&q=80&w=400", 
+                    pdf: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+                    desc: "Comprehensive formula pack for Calculus and Algebra."
+                },
             ]
         };
 
         // ============================================================
-        // ⚙️ INTERNAL SYSTEM LOGIC (DO NOT TOUCH)
+        // ⚙️ INTERNAL SYSTEM LOGIC
         // ============================================================
         
         let currentUser = null, currentView = 'home', activeCategory = 'All', currentBannerIndex = 0;
         let cart = JSON.parse(localStorage.getItem('edu_cart') || '[]');
-        let purchasedIds = []; // Now specific to user email
+        let purchasedIds = []; 
         let db, auth, bannerInterval;
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
 
         const init = async () => {
-            const config = CONFIG.FIREBASE_CONFIG || (typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null);
-            if (config) {
-                try {
-                    const app = initializeApp(config);
-                    auth = getAuth(app); db = getFirestore(app);
-                    
-                    // Auth Logic
-                    const initAuth = async () => {
-                        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                            await signInWithCustomToken(auth, __initial_auth_token);
-                        } else {
-                            await signInAnonymously(auth);
-                        }
-                    };
-                    initAuth();
+            try {
+                const app = initializeApp(CONFIG.FIREBASE_CONFIG);
+                auth = getAuth(app); 
+                db = getFirestore(app);
+                
+                const initAuth = async () => {
+                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                        await signInWithCustomToken(auth, __initial_auth_token);
+                    } else {
+                        await signInAnonymously(auth);
+                    }
+                };
+                initAuth();
 
-                    onAuthStateChanged(auth, (user) => {
-                        currentUser = (user && !user.isAnonymous) ? user : null;
-                        updateAuthUI();
-                        if (currentUser) {
-                            syncPurchases();
-                        } else {
-                            purchasedIds = [];
-                            renderView();
-                        }
-                    });
-                } catch(e) { console.error(e); renderView(); }
-            } else { renderView(); }
+                onAuthStateChanged(auth, (user) => {
+                    currentUser = (user && !user.isAnonymous) ? user : null;
+                    updateAuthUI();
+                    if (currentUser) {
+                        syncPurchases();
+                    } else {
+                        purchasedIds = [];
+                        renderView();
+                    }
+                });
+            } catch(e) { console.error("Config Error:", e); renderView(); }
             
             document.getElementById('whatsapp-btn-sidebar').onclick = () => window.open(`https://api.whatsapp.com/send?phone=${CONFIG.WHATSAPP_NUMBER}&text=I%20have%20some%20queries`, '_blank');
         };
 
         const updateAuthUI = () => {
             const isLogged = !!currentUser;
-            document.getElementById('user-avatar').src = isLogged ? (currentUser.photoURL || `https://ui-avatars.com/api/?name=${currentUser.displayName}`) : "";
+            const avatar = document.getElementById('user-avatar');
+            if(avatar) avatar.src = isLogged ? (currentUser.photoURL || `https://ui-avatars.com/api/?name=${currentUser.displayName}`) : "";
             document.getElementById('user-avatar').classList.toggle('hidden', !isLogged);
             document.getElementById('user-info').classList.toggle('hidden', !isLogged);
             if(isLogged) document.getElementById('user-name').innerText = currentUser.displayName;
@@ -214,17 +247,17 @@
 
         const syncPurchases = () => {
             if (!db || !currentUser) return;
-            // RULE 1: User-specific path
+            // RULE 1: STRICT USER PATH
             const collPath = collection(db, 'artifacts', appId, 'users', currentUser.uid, 'purchases');
             onSnapshot(collPath, (snap) => {
                 purchasedIds = snap.docs.map(doc => parseInt(doc.id));
                 renderView();
-            }, (err) => console.error(err));
+            }, (err) => console.error("Firestore Fail:", err));
         };
 
         window.handleLogin = async () => {
-            if (!auth) { alert("Firebase is not connected. Check Admin Config."); return; }
-            try { await signInWithPopup(auth, new GoogleAuthProvider()); toggleLoginModal(false); } catch(e) { alert("Login Error"); }
+            if (!auth) return;
+            try { await signInWithPopup(auth, new GoogleAuthProvider()); toggleLoginModal(false); } catch(e) { alert("Login Error: Please try again."); }
         };
 
         window.handleLogout = async () => { if (auth) await signOut(auth); localStorage.removeItem('edu_cart'); location.reload(); };
@@ -268,7 +301,7 @@
         window.initiateCheckout = () => {
             if (cart.length === 0) return;
             const total = cart.reduce((s, i) => s + i.price, 0);
-            const upiUrl = `upi://pay?pa=${CONFIG.UPI_ID}&pn=${encodeURIComponent(CONFIG.MERCHANT_NAME)}&am=${total}&cu=INR&tn=${encodeURIComponent('Payment for EduDigital Notes')}`;
+            const upiUrl = `upi://pay?pa=${CONFIG.UPI_ID}&pn=${encodeURIComponent(CONFIG.MERCHANT_NAME)}&am=${total}&cu=INR&tn=${encodeURIComponent('EduDigital Notes Purchase')}`;
             window.location.href = upiUrl;
             document.getElementById('upi-confirm-modal').classList.remove('hidden');
         };
@@ -276,16 +309,14 @@
         window.closeUPIModal = () => document.getElementById('upi-confirm-modal').classList.add('hidden');
 
         window.handlePaymentSuccess = async () => {
-            if (!currentUser) return;
+            if (!currentUser || !db) return;
             for (let item of cart) {
-                if (db) {
-                    const docRef = doc(db, 'artifacts', appId, 'users', currentUser.uid, 'purchases', item.id.toString());
-                    await setDoc(docRef, { id: item.id, name: item.name, date: new Date().toISOString() });
-                }
+                const docRef = doc(db, 'artifacts', appId, 'users', currentUser.uid, 'purchases', item.id.toString());
+                await setDoc(docRef, { id: item.id, name: item.name, date: new Date().toISOString() });
             }
             cart = []; localStorage.setItem('edu_cart', "[]");
             closeUPIModal();
-            alert("Payment Confirmed! Your notes are unlocked.");
+            alert("Success! Check your library for unlocked content.");
             navigateTo('orders');
         };
 
@@ -338,14 +369,14 @@
             if(!p) return "";
             const isOwned = purchasedIds.includes(id);
             return `<div class="fade-up max-w-4xl mx-auto">
-                <button onclick="navigateTo('home')" class="mb-4 font-bold flex gap-2 items-center text-slate-400 hover:text-primary"><i data-lucide="arrow-left" class="w-4 h-4"></i> Back</button>
+                <button onclick="navigateTo('home')" class="mb-4 font-bold flex gap-2 items-center text-slate-400 hover:text-primary transition-colors"><i data-lucide="arrow-left" class="w-4 h-4"></i> Back to Store</button>
                 <div class="grid md:grid-cols-2 gap-8 bg-white dark:bg-darkCard p-6 rounded-[2.5rem] shadow-xl border dark:border-slate-800">
                     <img src="${p.img}" class="rounded-3xl aspect-square object-cover shadow-lg">
                     <div class="flex flex-col justify-center">
                         <span class="text-primary font-bold text-xs mb-1 uppercase tracking-widest">${p.cat}</span>
                         <h2 class="text-3xl font-black mb-4">${p.name}</h2>
                         <p class="mb-8 opacity-60 leading-relaxed">${p.desc}</p>
-                        ${isOwned ? `<button onclick="viewPDF('${p.pdf}', '${p.name}')" class="w-full bg-green-500 text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-2 transition-all"><i data-lucide="eye"></i> View Note</button>` : `<button onclick="addToCart(${p.id})" class="w-full bg-primary text-white py-4 rounded-2xl font-bold shadow-lg shadow-primary/30 active:scale-95 transition-all flex items-center justify-center gap-2"><i data-lucide="shopping-cart"></i> Add to Cart - ₹${p.price}</button>`}
+                        ${isOwned ? `<button onclick="viewPDF('${p.pdf}', '${p.name}')" class="w-full bg-green-500 text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-2 shadow-lg"><i data-lucide="eye"></i> View Content</button>` : `<button onclick="addToCart(${p.id})" class="w-full bg-primary text-white py-4 rounded-2xl font-bold shadow-lg shadow-primary/30 active:scale-95 transition-all flex items-center justify-center gap-2"><i data-lucide="shopping-cart"></i> Add to Cart - ₹${p.price}</button>`}
                     </div>
                 </div>
             </div>`;
@@ -362,7 +393,7 @@
                 <div class="bg-primary/5 p-8 rounded-[2rem] border-2 border-primary/10">
                     <div class="flex justify-between items-center mb-6 text-xl font-black text-primary"><span>Total Amount</span><span>₹${total}</span></div>
                     <button onclick="initiateCheckout()" class="w-full bg-primary text-white py-4 rounded-2xl font-bold text-lg shadow-xl shadow-primary/30 active:scale-95 transition-transform">Pay using UPI App</button>
-                    <p class="text-center text-[10px] text-slate-400 mt-4 uppercase font-bold tracking-widest">GPay, PhonePe, Paytm supported</p>
+                    <p class="text-center text-[10px] text-slate-400 mt-4 uppercase font-bold tracking-widest">PhonePe, Paytm, GPay supported</p>
                 </div>
             </div>`;
         };
@@ -372,9 +403,9 @@
             const list = STORE_DATA.products.filter(p => purchasedIds.includes(p.id));
             if (list.length === 0) return `<div class="py-20 text-center fade-up"><h2 class="text-2xl font-black">No Purchased Notes Yet</h2></div>`;
             return `<div class="fade-up max-w-4xl mx-auto">
-                <h2 class="text-3xl font-black mb-8">My Library</h2>
+                <h2 class="text-3xl font-black mb-8">My Purchased Library</h2>
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-                    ${list.map(p => `<div class="bg-white dark:bg-darkCard p-3 rounded-3xl border shadow-sm hover:shadow-lg transition-all" onclick="navigateTo('product', ${p.id})"><img src="${p.img}" class="aspect-square object-cover rounded-2xl mb-2"><h3 class="font-bold text-sm line-clamp-1">${p.name}</h3><button class="w-full mt-2 bg-green-500/10 text-green-600 py-2 rounded-xl text-[10px] font-bold">UNLOCKED</button></div>`).join('')}
+                    ${list.map(p => `<div class="bg-white dark:bg-darkCard p-3 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-lg transition-all" onclick="navigateTo('product', ${p.id})"><img src="${p.img}" class="aspect-square object-cover rounded-2xl mb-2"><h3 class="font-bold text-sm line-clamp-1">${p.name}</h3><button class="w-full mt-2 bg-green-500/10 text-green-600 py-2 rounded-xl text-[10px] font-bold">UNLOCKED</button></div>`).join('')}
                 </div>
             </div>`;
         };
