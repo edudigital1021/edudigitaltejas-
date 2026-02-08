@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduDigital | Premium PDF Store</title>
+    <!-- Google Fonts & Scripts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'] },
+                    colors: { primary: '#6366f1', secondary: '#4f46e5', darkBg: '#0f172a', darkCard: '#1e293b' }
+                }
+            }
+        }
+    </script>
+    <style>
+        .glass { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+        .dark .glass { background: rgba(15, 23, 42, 0.7); }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .fade-up { animation: fadeUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        .drawer-transition { transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        iframe { border: none; width: 100%; height: 100%; }
+        #banner-track { display: flex; transition: transform 0.8s cubic-bezier(0.65, 0, 0.35, 1); }
+        .banner-dot.active { width: 1.5rem; background-color: white; }
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-darkBg text-slate-900 dark:text-slate-100 transition-colors duration-300 font-sans">
+
+    <!-- ✅ UI COMPONENTS -->
+    
+    <!-- UPI Confirmation Modal -->
+    <div id="upi-confirm-modal" class="fixed inset-0 z-[110] bg-black/80 backdrop-blur-sm flex items-center justify-center hidden">
+        <div class="max-w-md w-[90%] p-8 bg-white dark:bg-darkCard rounded-[2.5rem] text-center space-y-6 fade-up shadow-2xl">
+            <div class="w-20 h-20 bg-green-100 text-green-600 rounded-3xl flex items-center justify-center mx-auto">
+                <i data-lucide="smartphone" class="w-10 h-10"></i>
+            </div>
+            <h2 class="text-2xl font-black">Payment in Progress</h2>
+            <p class="text-slate-500 text-sm">हमने आपका UPI ऐप ओपन कर दिया है। पेमेंट पूरा करने के बाद वापस आकर "I Have Paid" बटन पर क्लिक करें।</p>
+            <div class="space-y-3">
+                <button onclick="handlePaymentSuccess()" class="w-full bg-primary text-white py-4 rounded-2xl font-bold shadow-xl active:scale-95 transition-all">I Have Paid - Unlock Now</button>
+                <button onclick="closeUPIModal()" class="w-full text-slate-400 font-bold py-2">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="login-screen" class="fixed inset-0 z-[100] bg-black/60 backdrop-blur-md flex items-center justify-center hidden">
+        <div class="max-w-md w-[90%] p-8 bg-white dark:bg-darkCard rounded-[2.5rem] text-center space-y-8 fade-up shadow-2xl relative">
+            <button onclick="toggleLoginModal(false)" class="absolute top-6 right-6 p-2 text-slate-400"><i data-lucide="x"></i></button>
+            <div class="w-20 h-20 bg-primary/10 text-primary rounded-3xl flex items-center justify-center mx-auto"><i data-lucide="graduation-cap" class="w-10 h-10"></i></div>
+            <h2 class="text-3xl font-black mb-2">Login Required</h2>
+            <p class="text-slate-500">Please login to continue with your purchase.</p>
+            <button onclick="handleLogin()" class="w-full flex items-center justify-center gap-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 py-4 rounded-2xl font-bold shadow-xl active:scale-95 transition-all">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/action/google.svg" class="w-6 h-6"> Continue with Google
+            </button>
+        </div>
+    </div>
+
+    <nav id="main-nav" class="fixed top-0 w-full z-40 glass border-b border-white/20 dark:border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <button onclick="toggleDrawer(true)" class="p-2 hover:bg-slate-200/50 rounded-full"><i data-lucide="menu"></i></button>
+                <h1 class="text-xl font-bold text-primary cursor-pointer" onclick="navigateTo('home')">EduDigital</h1>
+            </div>
+            <div class="flex items-center gap-2">
+                <button id="search-btn" onclick="toggleSearch(event)" class="p-2 hover:bg-slate-200/50 rounded-full"><i data-lucide="search"></i></button>
+                <button onclick="navigateTo('cart')" class="p-2 relative hover:bg-slate-200/50 rounded-full"><i data-lucide="shopping-cart"></i><span id="cart-count" class="absolute top-1 right-1 bg-primary text-white text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full hidden">0</span></button>
+            </div>
+        </div>
+        <div id="search-overlay" class="hidden absolute top-16 left-0 w-full glass border-b p-4 fade-up">
+            <div class="max-w-3xl mx-auto relative">
+                <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"></i>
+                <input type="text" id="search-input" oninput="handleSearch(this.value)" placeholder="Search notes..." class="w-full pl-10 pr-4 py-3 bg-white dark:bg-darkCard border border-slate-200 dark:border-slate-700 rounded-2xl focus:ring-2 focus:ring-primary outline-none">
+                <div id="search-results" class="mt-4 max-h-60 overflow-y-auto hidden"></div>
+            </div>
+        </div>
+    </nav>
+
+    <div id="drawer-overlay" onclick="toggleDrawer(false)" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 hidden opacity-0 transition-opacity duration-300"></div>
+    <div id="sidebar-drawer" class="fixed top-0 left-0 h-full w-[280px] bg-white dark:bg-darkCard z-[60] drawer-transition -translate-x-full shadow-2xl overflow-y-auto">
+        <div class="p-6 h-full flex flex-col">
+            <div class="flex items-center gap-3 mb-8">
+                <img id="user-avatar" src="" class="w-10 h-10 rounded-full border-2 border-primary hidden">
+                <div id="user-info" class="hidden"><p class="font-bold text-sm" id="user-name">User</p><p class="text-[10px] opacity-50 uppercase font-bold">Student Profile</p></div>
+                <div id="guest-info"><p class="font-bold text-sm">Guest User</p><button onclick="toggleLoginModal(true)" class="text-[10px] text-primary font-bold uppercase">Login Profile</button></div>
+            </div>
+            <nav class="space-y-1 flex-1">
+                <button onclick="navigateTo('home'); toggleDrawer(false)" class="w-full flex items-center gap-4 px-4 py-3 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-all font-medium"><i data-lucide="home"></i> Home</button>
+                <button onclick="navigateTo('cart'); toggleDrawer(false)" class="w-full flex items-center gap-4 px-4 py-3 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-all font-medium"><i data-lucide="shopping-cart"></i> My Cart</button>
+                <button onclick="navigateTo('orders'); toggleDrawer(false)" class="w-full flex items-center gap-4 px-4 py-3 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-all font-medium"><i data-lucide="book-open"></i> My Purchases</button>
+                <hr class="my-4 dark:border-slate-800">
+                <div class="px-4 py-3 flex items-center justify-between font-medium">
+                    <div class="flex items-center gap-4"><i data-lucide="moon"></i> Dark Mode</div>
+                    <label class="relative inline-flex items-center cursor-pointer"><input type="checkbox" id="theme-toggle" class="sr-only peer" onchange="toggleTheme()"><div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div></label>
+                </div>
+                <button id="whatsapp-btn-sidebar" class="w-full flex items-center gap-4 px-4 py-3 rounded-xl hover:bg-green-50 text-green-600 transition-all font-medium"><i data-lucide="message-circle"></i> WhatsApp Support</button>
+            </nav>
+            <div class="pt-6 mt-auto"><button id="auth-btn" onclick="handleLogout()" class="w-full flex items-center gap-4 px-4 py-3 rounded-xl hover:bg-red-50 text-red-500 font-medium hidden transition-all"><i data-lucide="log-out"></i> Logout</button></div>
+        </div>
+    </div>
+
+    <div id="pdf-viewer-modal" class="fixed inset-0 z-[80] bg-black/95 hidden flex flex-col">
+        <div class="p-4 flex items-center justify-between text-white glass">
+            <h3 id="viewer-title" class="font-bold">PDF Preview</h3>
+            <button onclick="closePDF()" class="p-2 rounded-full hover:bg-white/20"><i data-lucide="x"></i></button>
+        </div>
+        <div class="flex-1 bg-slate-100"><iframe id="pdf-iframe" src="" sandbox="allow-scripts allow-same-origin"></iframe></div>
+    </div>
+
+    <main id="app-view" class="pt-20 pb-24 px-4 max-w-7xl mx-auto min-h-screen"></main>
+    <div id="toast" class="hidden toast bg-slate-900 text-white px-6 py-3 rounded-full font-bold shadow-2xl fade-up fixed bottom-8 left-1/2 -translate-x-1/2 z-[200] flex items-center gap-2">
+        <i data-lucide="check-circle" class="text-green-400 w-5 h-5"></i><span id="toast-msg">Success!</span>
+    </div>
+
+    <!-- ✅ DATA & LOGIC SECTION -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInWithPopup, signInAnonymously, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // ============================================================
+        // ⭐ ADMIN DASHBOARD (EASY EDIT SECTION)
+        // ============================================================
+        
+        const CONFIG = {
+            WHATSAPP_NUMBER: "918229084161", 
+            UPI_ID: "8229084161@okaxis",      // अपनी UPI ID यहाँ डालें
+            MERCHANT_NAME: "EduDigital",    // अपना या स्टोर का नाम
+            FIREBASE_CONFIG: null,           // Firebase का JSON Config यहाँ पेस्ट करें
+        };
+
+        const STORE_DATA = {
+            categories: ['All', 'Notes', 'Mind Map', 'PDFs'],
+            banners: [
+                { title: "Ace Your Exams", sub: "Handwritten notes for Class 12", img: "https://images.unsplash.com/photo-1517842645767-c639042777db?auto=format&fit=crop&q=80&w=1200" },
+                { title: "Visual Learning", sub: "Fast revision with Mind Maps", img: "https://images.unsplash.com/photo-1544391496-1ca7c97457cd?auto=format&fit=crop&q=80&w=1200" },
+                { title: "EduDigital Premium", sub: "Get 95%+ with our resources", img: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&q=80&w=1200" }
+            ],
+            products: [
+                { 
+                    id: 101, 
+                    name: "Physics Class 12 Notes", 
+                    cat: "Notes", 
+                    price: 199, 
+                    img: "https://images.unsplash.com/photo-1636466484294-281069788218?auto=format&fit=crop&q=80&w=400", 
+                    pdf: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+                    desc: "Complete Physics handwritten notes with solved numericals."
+                },
+                { 
+                    id: 102, 
+                    name: "Chemistry Organic Map", 
+                    cat: "Mind Map", 
+                    price: 99, 
+                    img: "https://images.unsplash.com/photo-1532187875661-1459a9f5adc9?auto=format&fit=crop&q=80&w=400", 
+                    pdf: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+                    desc: "Detailed visual reaction map for Organic Chemistry."
+                },
+                { 
+                    id: 103, 
+                    name: "Mathematics PDF Pack", 
+                    cat: "PDFs", 
+                    price: 49, 
+                    img: "https://images.unsplash.com/photo-1509228468518-180dd48a5811?auto=format&fit=crop&q=80&w=400", 
+                    pdf: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+                    desc: "Formula sheets and previous year solved questions pack."
+                },
+            ]
+        };
+
+        // ============================================================
+        // ⚙️ INTERNAL SYSTEM LOGIC
+        // ============================================================
+
+        let currentUser = null, currentView = 'home', activeCategory = 'All', currentBannerIndex = 0;
+        let cart = JSON.parse(localStorage.getItem('edu_cart') || '[]');
+        let purchasedIds = JSON.parse(localStorage.getItem('edu_purchases') || '[]');
+        let db, auth, bannerInterval;
+
+        const init = async () => {
+            const config = CONFIG.FIREBASE_CONFIG || (typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null);
+            if (config) {
+                try {
+                    const app = initializeApp(config);
+                    auth = getAuth(app); db = getFirestore(app);
+                    onAuthStateChanged(auth, (user) => {
+                        currentUser = (user && !user.isAnonymous) ? user : null;
+                        updateAuthUI();
+                        if (currentUser) syncPurchases();
+                        renderView();
+                    });
+                    signInAnonymously(auth).catch(()=>{});
+                } catch(e) { renderView(); }
+            } else { renderView(); }
+            document.getElementById('whatsapp-btn-sidebar').onclick = () => window.open(`https://api.whatsapp.com/send?phone=${CONFIG.WHATSAPP_NUMBER}&text=I%20have%20some%20queries`, '_blank');
+        };
+
+        const updateAuthUI = () => {
+            const isLogged = !!currentUser;
+            const avatar = document.getElementById('user-avatar');
+            if(avatar) avatar.src = isLogged ? (currentUser.photoURL || `https://ui-avatars.com/api/?name=${currentUser.displayName}`) : "";
+            document.getElementById('user-avatar').classList.toggle('hidden', !isLogged);
+            document.getElementById('user-info').classList.toggle('hidden', !isLogged);
+            if(isLogged) document.getElementById('user-name').innerText = currentUser.displayName;
+            document.getElementById('guest-info').classList.toggle('hidden', isLogged);
+            document.getElementById('auth-btn').classList.toggle('hidden', !isLogged);
+        };
+
+        const syncPurchases = () => {
+            if (!db || !currentUser) return;
+            const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+            onSnapshot(collection(db, 'artifacts', appId, 'users', currentUser.uid, 'purchases'), (snap) => {
+                purchasedIds = snap.docs.map(doc => parseInt(doc.id));
+                localStorage.setItem('edu_purchases', JSON.stringify(purchasedIds));
+                if (currentView === 'home' || currentView === 'product') renderView();
+            });
+        };
+
+        window.handleLogin = async () => {
+            if (!auth) { 
+                currentUser = { displayName: "Demo User", uid: "demo" };
+                updateAuthUI(); toggleLoginModal(false); renderView(); return;
+            }
+            try { await signInWithPopup(auth, new GoogleAuthProvider()); toggleLoginModal(false); } catch(e) { alert("Login Error"); }
+        };
+
+        window.handleLogout = async () => { if (auth) await signOut(auth); localStorage.removeItem('edu_cart'); location.reload(); };
+        window.toggleLoginModal = (s) => document.getElementById('login-screen').classList.toggle('hidden', !s);
+        const checkAuth = () => { if (!currentUser) { toggleLoginModal(true); return false; } return true; };
+
+        window.navigateTo = (v, p = null) => { currentView = v; window.scrollTo({ top: 0, behavior: 'smooth' }); renderView(p); };
+
+        window.setCategory = (cat) => {
+            activeCategory = cat;
+            if (currentView !== 'home') { navigateTo('home'); return; }
+            const grid = document.getElementById('product-grid-wrapper');
+            if (grid) grid.innerHTML = renderProductGrid();
+            document.querySelectorAll('.cat-btn').forEach(btn => {
+                const isActive = btn.getAttribute('data-cat') === cat;
+                btn.className = `cat-btn px-6 py-2.5 rounded-full whitespace-nowrap font-bold transition-all shadow-sm ${isActive ? 'bg-primary text-white scale-105' : 'bg-white dark:bg-darkCard text-slate-400'}`;
+            });
+            lucide.createIcons();
+        };
+
+        window.addToCart = (id) => {
+            if (!checkAuth()) return;
+            if (cart.find(i => i.id === id)) { navigateTo('cart'); return; }
+            cart.push(STORE_DATA.products.find(x => x.id === id));
+            localStorage.setItem('edu_cart', JSON.stringify(cart));
+            updateCartCount();
+            showToast("Item added to cart!");
+        };
+
+        window.removeFromCart = (id) => {
+            cart = cart.filter(i => i.id !== id);
+            localStorage.setItem('edu_cart', JSON.stringify(cart));
+            updateCartCount(); renderView();
+        };
+
+        const updateCartCount = () => {
+            const badge = document.getElementById('cart-count');
+            if (badge) { badge.innerText = cart.length; badge.classList.toggle('hidden', cart.length === 0); }
+        };
+
+        // --- NEW UPI INTENT LOGIC ---
+        window.initiateCheckout = () => {
+            if (cart.length === 0) return;
+            const total = cart.reduce((s, i) => s + i.price, 0);
+            
+            // UPI Intent URL Construction
+            const upiUrl = `upi://pay?pa=${CONFIG.UPI_ID}&pn=${encodeURIComponent(CONFIG.MERCHANT_NAME)}&am=${total}&cu=INR&tn=${encodeURIComponent('EduDigital Notes Purchase')}`;
+            
+            // Open UPI app
+            window.location.href = upiUrl;
+
+            // Show Confirmation Modal
+            document.getElementById('upi-confirm-modal').classList.remove('hidden');
+        };
+
+        window.closeUPIModal = () => document.getElementById('upi-confirm-modal').classList.add('hidden');
+
+        window.handlePaymentSuccess = async () => {
+            for (let item of cart) {
+                if (!purchasedIds.includes(item.id)) purchasedIds.push(item.id);
+                if (db && currentUser) {
+                    const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+                    await setDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'purchases', item.id.toString()), { id: item.id, name: item.name, date: new Date().toISOString() });
+                }
+            }
+            cart = []; localStorage.setItem('edu_cart', "[]");
+            localStorage.setItem('edu_purchases', JSON.stringify(purchasedIds));
+            closeUPIModal();
+            alert("Success! Your notes are now unlocked in My Purchases.");
+            navigateTo('orders');
+        };
+
+        function renderView(params) {
+            const container = document.getElementById('app-view');
+            if (!container) return;
+            if (currentView === 'home') container.innerHTML = renderHome();
+            else if (currentView === 'product') container.innerHTML = renderProductDetail(params);
+            else if (currentView === 'cart') container.innerHTML = renderCart();
+            else if (currentView === 'orders') container.innerHTML = renderPurchases();
+            lucide.createIcons();
+            updateCartCount();
+            if (currentView === 'home') startBannerAutoCycle();
+        }
+
+        const renderHome = () => `
+            <div class="space-y-8 fade-up">
+                <div class="relative w-full aspect-[21/9] md:aspect-[21/6] overflow-hidden rounded-[2rem] shadow-xl">
+                    <div id="banner-track" class="h-full w-full" style="transform: translateX(-${currentBannerIndex * 100}%)">
+                        ${STORE_DATA.banners.map(b => `<div class="min-w-full relative h-full flex-shrink-0"><img src="${b.img}" class="w-full h-full object-cover"><div class="absolute inset-0 bg-black/40 p-8 flex flex-col justify-center text-white"><h2 class="text-2xl md:text-4xl font-black">${b.title}</h2><p class="text-sm opacity-80">${b.sub}</p></div></div>`).join('')}
+                    </div>
+                    <div class="absolute bottom-4 left-0 right-0 flex justify-center gap-2">
+                        ${STORE_DATA.banners.map((_, i) => `<div class="banner-dot h-1.5 w-1.5 rounded-full bg-white/30 transition-all ${i === currentBannerIndex ? 'active' : ''}"></div>`).join('')}
+                    </div>
+                </div>
+                <div class="flex gap-3 overflow-x-auto hide-scrollbar -mx-4 px-4">
+                    ${STORE_DATA.categories.map(cat => `<button onclick="setCategory('${cat}')" data-cat="${cat}" class="cat-btn px-6 py-2 rounded-full whitespace-nowrap font-bold transition-all shadow-sm ${activeCategory === cat ? 'bg-primary text-white scale-105' : 'bg-white dark:bg-darkCard text-slate-400'}">${cat}</button>`).join('')}
+                </div>
+                <div id="product-grid-wrapper">${renderProductGrid()}</div>
+            </div>`;
+
+        const renderProductGrid = () => {
+            const list = activeCategory === 'All' ? STORE_DATA.products : STORE_DATA.products.filter(p => p.cat === activeCategory);
+            return `<div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 fade-up">
+                ${list.map(p => `
+                    <div class="bg-white dark:bg-darkCard p-3 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm relative group" onclick="navigateTo('product', ${p.id})">
+                        ${purchasedIds.includes(p.id) ? `<div class="absolute top-2 right-2 bg-green-500 text-white p-1 rounded-full z-10 shadow-lg"><i data-lucide="check" class="w-3 h-3"></i></div>` : ''}
+                        <div class="aspect-square overflow-hidden rounded-2xl mb-2"><img src="${p.img}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"></div>
+                        <h3 class="font-bold text-sm line-clamp-1">${p.name}</h3>
+                        <div class="flex justify-between items-center mt-1"><span class="text-primary font-black text-sm">₹${p.price}</span>${!purchasedIds.includes(p.id) ? `<button onclick="event.stopPropagation(); addToCart(${p.id})" class="p-1.5 bg-slate-100 dark:bg-slate-800 rounded-lg text-primary hover:bg-primary hover:text-white transition-all"><i data-lucide="shopping-cart" class="w-4 h-4"></i></button>` : ''}</div>
+                    </div>`).join('')}
+            </div>`;
+        };
+
+        const renderProductDetail = (id) => {
+            const p = STORE_DATA.products.find(x => x.id === id);
+            const isOwned = purchasedIds.includes(id);
+            return `<div class="fade-up max-w-4xl mx-auto">
+                <button onclick="navigateTo('home')" class="mb-4 font-bold flex gap-2 items-center text-slate-400 hover:text-primary"><i data-lucide="arrow-left" class="w-4 h-4"></i> Back to Store</button>
+                <div class="grid md:grid-cols-2 gap-8 bg-white dark:bg-darkCard p-6 rounded-[2.5rem] shadow-xl border dark:border-slate-800">
+                    <img src="${p.img}" class="rounded-3xl aspect-square object-cover shadow-lg">
+                    <div class="flex flex-col justify-center">
+                        <span class="text-primary font-bold text-xs mb-1 uppercase tracking-widest">${p.cat}</span>
+                        <h2 class="text-3xl font-black mb-4">${p.name}</h2>
+                        <p class="mb-8 opacity-60 leading-relaxed">${p.desc}</p>
+                        ${isOwned ? `<button onclick="viewPDF('${p.pdf}', '${p.name}')" class="w-full bg-green-500 text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-2 transition-all"><i data-lucide="eye"></i> View Note</button>` : `<button onclick="addToCart(${p.id})" class="w-full bg-primary text-white py-4 rounded-2xl font-bold shadow-lg shadow-primary/30 active:scale-95 transition-all flex items-center justify-center gap-2"><i data-lucide="shopping-cart"></i> Add to Cart - ₹${p.price}</button>`}
+                    </div>
+                </div>
+            </div>`;
+        };
+
+        const renderCart = () => {
+            if (cart.length === 0) return `<div class="py-20 text-center fade-up"><h2 class="text-2xl font-black">Your Cart is Empty</h2><button onclick="navigateTo('home')" class="mt-4 text-primary font-bold underline">Go to Store</button></div>`;
+            const total = cart.reduce((s, i) => s + i.price, 0);
+            return `<div class="fade-up max-w-2xl mx-auto">
+                <h2 class="text-3xl font-black mb-8">My Cart (${cart.length})</h2>
+                <div class="space-y-4 mb-8">
+                    ${cart.map(item => `<div class="bg-white dark:bg-darkCard p-4 rounded-3xl border flex items-center gap-4 shadow-sm"><img src="${item.img}" class="w-16 h-16 rounded-xl object-cover"><div class="flex-1"><h4 class="font-bold text-sm">${item.name}</h4><p class="text-primary font-black">₹${item.price}</p></div><button onclick="removeFromCart(${item.id})" class="p-2 text-red-500 opacity-40 hover:opacity-100 transition-opacity"><i data-lucide="trash-2"></i></button></div>`).join('')}
+                </div>
+                <div class="bg-primary/5 p-8 rounded-[2rem] border-2 border-primary/10">
+                    <div class="flex justify-between items-center mb-6 text-xl font-black text-primary"><span>Total Amount</span><span>₹${total}</span></div>
+                    <button onclick="initiateCheckout()" class="w-full bg-primary text-white py-4 rounded-2xl font-bold text-lg shadow-xl shadow-primary/30 active:scale-95 transition-transform">Pay using UPI App</button>
+                    <p class="text-center text-[10px] text-slate-400 mt-4 uppercase font-bold tracking-widest">GPay, PhonePe, Paytm supported</p>
+                </div>
+            </div>`;
+        };
+
+        const renderPurchases = () => {
+            const list = STORE_DATA.products.filter(p => purchasedIds.includes(p.id));
+            if (list.length === 0) return `<div class="py-20 text-center fade-up"><h2 class="text-2xl font-black">No Purchased Notes Yet</h2></div>`;
+            return `<div class="fade-up max-w-4xl mx-auto">
+                <h2 class="text-3xl font-black mb-8">My Library</h2>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+                    ${list.map(p => `<div class="bg-white dark:bg-darkCard p-3 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-lg transition-all" onclick="navigateTo('product', ${p.id})"><img src="${p.img}" class="aspect-square object-cover rounded-2xl mb-2"><h3 class="font-bold text-sm line-clamp-1">${p.name}</h3><button class="w-full mt-2 bg-green-500/10 text-green-600 py-2 rounded-xl text-[10px] font-bold">UNLOCKED</button></div>`).join('')}
+                </div>
+            </div>`;
+        };
+
+        window.viewPDF = (u, t) => { document.getElementById('pdf-viewer-modal').classList.remove('hidden'); document.getElementById('viewer-title').innerText = t; document.getElementById('pdf-iframe').src = `${u}#toolbar=0`; lucide.createIcons(); };
+        window.closePDF = () => { document.getElementById('pdf-viewer-modal').classList.add('hidden'); document.getElementById('pdf-iframe').src = ""; };
+        window.toggleDrawer = (s) => { document.getElementById('sidebar-drawer').classList.toggle('-translate-x-full', !s); document.getElementById('drawer-overlay').classList.toggle('hidden', !s); if (s) setTimeout(() => document.getElementById('drawer-overlay').classList.add('opacity-100'), 10); };
+        window.toggleSearch = (e) => { if (e) e.stopPropagation(); document.getElementById('search-overlay').classList.toggle('hidden'); if(!document.getElementById('search-overlay').classList.contains('hidden')) document.getElementById('search-input').focus(); };
+        window.toggleTheme = () => { localStorage.setItem('theme', document.documentElement.classList.toggle('dark') ? 'dark' : 'light'); };
+        function showToast(m) { const t = document.getElementById('toast'); document.getElementById('toast-msg').innerText = m; t.classList.remove('hidden'); setTimeout(() => t.classList.add('hidden'), 3000); lucide.createIcons(); }
+
+        function startBannerAutoCycle() {
+            if (bannerInterval) clearInterval(bannerInterval);
+            bannerInterval = setInterval(() => {
+                const track = document.getElementById('banner-track');
+                if (!track || currentView !== 'home') return;
+                currentBannerIndex = (currentBannerIndex + 1) % STORE_DATA.banners.length;
+                track.style.transform = `translateX(-${currentBannerIndex * 100}%)`;
+                document.querySelectorAll('.banner-dot').forEach((d, i) => d.classList.toggle('active', i === currentBannerIndex));
+            }, 5000);
+        }
+
+        window.handleSearch = (q) => {
+            const r = document.getElementById('search-results');
+            if (!q) { r.classList.add('hidden'); return; }
+            const l = STORE_DATA.products.filter(p => p.name.toLowerCase().includes(q.toLowerCase()));
+            r.innerHTML = l.length > 0 ? l.map(p => `<div onclick="navigateTo('product', ${p.id}); toggleSearch()" class="p-3 hover:bg-slate-100 flex gap-3 items-center rounded-xl cursor-pointer"><img src="${p.img}" class="w-8 h-8 rounded object-cover"><p class="text-sm font-bold">${p.name}</p></div>`).join('') : '<p class="p-3 text-xs opacity-40 text-center">Not found</p>';
+            r.classList.remove('hidden');
+        };
+
+        window.onclick = (e) => { if (document.getElementById('search-overlay') && !document.getElementById('search-overlay').contains(e.target) && e.target.id !== 'search-btn' && !document.getElementById('search-btn').contains(e.target)) document.getElementById('search-overlay').classList.add('hidden'); };
+
+        if (localStorage.getItem('theme') === 'dark') document.documentElement.classList.add('dark');
+        init();
+        lucide.createIcons();
+    </script>
+</body>
+</html>
+
