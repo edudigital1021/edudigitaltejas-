@@ -32,25 +32,31 @@
         iframe { border: none; width: 100%; height: 100%; border-radius: 1rem; }
         #banner-track { display: flex; transition: transform 0.8s cubic-bezier(0.65, 0, 0.35, 1); }
         .banner-dot.active { width: 1.5rem; background-color: white; opacity: 1; }
-        #app-loader { position: fixed; inset: 0; background: #0f172a; z-index: 500; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        /* Loader Overlay */
+        #app-loader { 
+            position: fixed; inset: 0; background: #0f172a; z-index: 500; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; 
+            transition: opacity 0.5s ease;
+        }
     </style>
 </head>
 <body class="bg-slate-50 dark:bg-darkBg text-slate-900 dark:text-slate-100 transition-colors duration-300 font-sans">
 
-    <!-- ✅ Initial App Loader -->
+    <!-- ✅ Initial App Loader (With Auto-Hide Safety) -->
     <div id="app-loader">
         <div class="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-        <p class="mt-4 text-slate-400 font-bold tracking-widest text-[10px] uppercase">Connecting to Firebase...</p>
+        <p class="mt-4 text-slate-400 font-bold tracking-widest text-[10px] uppercase">Connecting to EduDigital...</p>
+        <p id="loader-timer-msg" class="mt-2 text-slate-600 text-[9px] hidden italic">Dhiraj rakhein, network check ho raha hai...</p>
     </div>
 
     <!-- ✅ UPI Confirmation Modal -->
     <div id="upi-confirm-modal" class="fixed inset-0 z-[150] bg-black/80 backdrop-blur-md flex items-center justify-center hidden">
         <div class="max-w-md w-[90%] p-8 bg-white dark:bg-darkCard rounded-[2.5rem] text-center space-y-6 shadow-2xl">
             <div class="w-20 h-20 bg-green-100 text-green-600 rounded-3xl flex items-center justify-center mx-auto"><i data-lucide="check-circle" class="w-10 h-10"></i></div>
-            <h2 class="text-2xl font-black">Confirm Payment</h2>
-            <p class="text-slate-500 text-sm">Agar aapne payment kar diya hai toh nichhe click karein.</p>
+            <h2 class="text-2xl font-black">Payment Status</h2>
+            <p class="text-slate-500 text-sm">Kya aapne payment poora kar liya hai? Click karte hi notes unlock ho jayenge.</p>
             <div class="space-y-3">
-                <button onclick="handlePaymentSuccess()" class="w-full bg-primary text-white py-4 rounded-2xl font-bold shadow-xl active:scale-95 transition-all">I Have Paid - Unlock</button>
+                <button onclick="handlePaymentSuccess()" class="w-full bg-primary text-white py-4 rounded-2xl font-bold shadow-xl active:scale-95 transition-all">Yes, I Have Paid</button>
                 <button onclick="closeUPIModal()" class="w-full text-slate-400 font-bold py-2">Cancel</button>
             </div>
         </div>
@@ -62,30 +68,25 @@
             <button onclick="toggleLoginModal(false)" class="absolute top-6 right-6 p-2 text-slate-400"><i data-lucide="x"></i></button>
             <div class="w-20 h-20 bg-primary/10 text-primary rounded-3xl flex items-center justify-center mx-auto"><i data-lucide="graduation-cap" class="w-10 h-10"></i></div>
             <h2 class="text-3xl font-black">Student Login</h2>
-            <p class="text-slate-500 text-sm">Apne Google account se login karein taki purchases hamesha rahein.</p>
-            
+            <p class="text-slate-500 text-sm">Apne Google account se login karein taki library safe rahe.</p>
             <button onclick="handleLogin()" id="login-btn-txt" class="w-full flex items-center justify-center gap-4 bg-white dark:bg-slate-800 border py-4 rounded-2xl font-bold shadow-xl active:scale-95 transition-all">
-                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/action/google.svg" class="w-6 h-6"> Continue with Google
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/action/google.svg" class="w-6 h-6"> Login with Google
             </button>
-
-            <!-- Debug Error Box -->
-            <div id="auth-error-box" class="hidden p-4 bg-red-50 dark:bg-red-900/20 text-red-600 rounded-xl text-left border border-red-100 dark:border-red-900/30">
-                <p class="text-[10px] font-bold uppercase mb-1">Login Failed Error:</p>
-                <p id="auth-error-msg" class="text-xs break-words leading-tight"></p>
-                <p class="mt-2 text-[9px] opacity-60">Tip: Check if this domain is added in Firebase Authorized Domains.</p>
+            <div id="auth-error-box" class="hidden mt-4 p-3 bg-red-50 text-red-600 rounded-xl text-[10px] text-left border border-red-100">
+                <b>ERROR:</b> <span id="auth-error-msg"></span>
             </div>
         </div>
     </div>
 
     <!-- ✅ Header -->
-    <nav class="fixed top-0 w-full z-40 glass border-b border-white/20 dark:border-slate-800">
-        <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+    <nav class="fixed top-0 w-full z-40 glass border-b border-white/20 dark:border-slate-800 h-16 flex items-center">
+        <div class="max-w-7xl mx-auto px-4 w-full flex items-center justify-between">
             <div class="flex items-center gap-4">
                 <button onclick="toggleDrawer(true)" class="p-2 hover:bg-slate-200/50 rounded-full transition-all"><i data-lucide="menu"></i></button>
                 <h1 class="text-xl font-bold text-primary tracking-tight cursor-pointer" onclick="navigateTo('home')">EduDigital</h1>
             </div>
             <div class="flex items-center gap-2">
-                <button onclick="navigateTo('cart')" class="p-2 relative hover:bg-slate-200/50 rounded-full">
+                <button onclick="navigateTo('cart')" class="p-2 relative hover:bg-slate-200/50 rounded-full transition-all">
                     <i data-lucide="shopping-cart"></i>
                     <span id="cart-count" class="absolute top-1 right-1 bg-primary text-white text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full hidden">0</span>
                 </button>
@@ -95,22 +96,16 @@
 
     <!-- ✅ Sidebar -->
     <div id="drawer-overlay" onclick="toggleDrawer(false)" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 hidden opacity-0 transition-opacity duration-300"></div>
-    <div id="sidebar-drawer" class="fixed top-0 left-0 h-full w-[280px] bg-white dark:bg-darkCard z-[60] -translate-x-full transition-transform duration-300 shadow-2xl overflow-y-auto border-r border-slate-100 dark:border-slate-800">
+    <div id="sidebar-drawer" class="fixed top-0 left-0 h-full w-[280px] bg-white dark:bg-darkCard z-[60] -translate-x-full transition-transform duration-300 shadow-2xl overflow-y-auto">
         <div class="p-6 h-full flex flex-col">
             <div class="flex items-center gap-3 mb-8">
                 <img id="user-avatar" src="" class="w-12 h-12 rounded-full border-2 border-primary hidden object-cover shadow-lg">
-                <div id="user-info" class="hidden">
-                    <p class="font-bold text-sm truncate max-w-[150px]" id="user-name">User</p>
-                    <p id="user-status-badge" class="text-[9px] px-2 py-0.5 bg-primary/10 text-primary rounded-full font-black inline-block uppercase">Member</p>
-                </div>
-                <div id="guest-info">
-                    <p class="font-bold text-sm text-slate-400">Guest User</p>
-                    <button onclick="toggleLoginModal(true)" class="text-[10px] text-primary font-bold uppercase underline">Log in here</button>
-                </div>
+                <div id="user-info" class="hidden"><p class="font-bold text-sm" id="user-name">Student</p><p class="text-[10px] text-primary uppercase font-bold">Premium Account</p></div>
+                <div id="guest-info"><p class="font-bold text-sm">Guest User</p><button onclick="toggleLoginModal(true)" class="text-[10px] text-primary font-bold uppercase underline">Log in here</button></div>
             </div>
             <nav class="space-y-1 flex-1">
                 <button onclick="navigateTo('home'); toggleDrawer(false)" class="w-full flex items-center gap-4 px-4 py-3 rounded-xl hover:bg-indigo-50 dark:hover:bg-indigo-500/10 transition-all font-medium"><i data-lucide="home"></i> Home</button>
-                <button onclick="navigateTo('orders'); toggleDrawer(false)" class="w-full flex items-center gap-4 px-4 py-3 rounded-xl hover:bg-indigo-50 dark:hover:bg-indigo-500/10 transition-all font-medium"><i data-lucide="book-open"></i> My Purchases</button>
+                <button onclick="navigateTo('orders'); toggleDrawer(false)" class="w-full flex items-center gap-4 px-4 py-3 rounded-xl hover:bg-indigo-50 dark:hover:bg-indigo-500/10 transition-all font-medium text-primary"><i data-lucide="book-open"></i> My Purchases</button>
                 <hr class="my-4 dark:border-slate-800">
                 <div class="px-4 py-3 flex items-center justify-between font-medium text-sm">
                     <div class="flex items-center gap-4"><i data-lucide="moon"></i> Dark Mode</div>
@@ -118,38 +113,36 @@
                 </div>
                 <button onclick="window.open('https://api.whatsapp.com/send?phone=918229084161', '_blank')" class="w-full flex items-center gap-4 px-4 py-3 rounded-xl hover:bg-green-50 text-green-600 font-medium"><i data-lucide="message-circle"></i> Help Support</button>
             </nav>
-            <div class="pt-6 mt-auto"><button id="auth-btn" onclick="handleLogout()" class="w-full flex items-center gap-4 px-4 py-3 rounded-xl hover:bg-red-50 text-red-500 font-medium hidden"><i data-lucide="log-out"></i> Logout</button></div>
+            <div class="pt-6 mt-auto"><button id="auth-btn" onclick="handleLogout()" class="w-full flex items-center gap-4 px-4 py-3 rounded-xl hover:bg-red-50 text-red-500 font-medium hidden"><i data-lucide="log-out"></i> Logout Account</button></div>
         </div>
     </div>
 
-    <!-- ✅ Secured PDF Reader -->
-    <div id="pdf-viewer-modal" class="fixed inset-0 z-[160] bg-black/95 hidden flex flex-col">
-        <div class="p-4 flex items-center justify-between text-white glass border-b border-white/10">
-            <h3 id="viewer-title" class="font-bold text-sm md:text-base truncate max-w-[70%]">Loading...</h3>
-            <button onclick="closePDF()" class="p-2.5 rounded-full bg-white/10 hover:bg-red-500 transition-all active:scale-90"><i data-lucide="x"></i></button>
-        </div>
-        <div class="flex-1 relative bg-slate-900">
-            <div id="pdf-loader" class="absolute inset-0 flex flex-col items-center justify-center z-50 bg-slate-900">
-                <div class="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-                <p class="mt-4 text-[10px] font-bold text-slate-500 tracking-widest uppercase">Opening Secured PDF...</p>
+    <!-- ✅ Secure PDF Reader -->
+    <div id="pdf-viewer-modal" class="fixed inset-0 z-[160] bg-black/95 hidden flex flex-col p-0 md:p-4">
+        <div class="max-w-6xl mx-auto w-full h-full flex flex-col bg-slate-900 md:rounded-3xl overflow-hidden shadow-2xl">
+            <div class="p-4 flex items-center justify-between text-white glass border-b border-white/10">
+                <h3 id="viewer-title" class="font-bold text-sm md:text-base truncate max-w-[70%]">Document</h3>
+                <button onclick="closePDF()" class="p-2.5 rounded-full bg-white/10 hover:bg-red-500 transition-all"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
-            <iframe id="pdf-iframe" src="" class="w-full h-full relative z-10" onload="document.getElementById('pdf-loader').style.display='none'"></iframe>
+            <div class="flex-1 relative bg-slate-900">
+                <iframe id="pdf-iframe" src="" class="w-full h-full"></iframe>
+            </div>
         </div>
     </div>
 
     <main id="app-view" class="pt-20 pb-24 px-4 max-w-7xl mx-auto min-h-screen"></main>
     
-    <div id="toast" class="hidden toast bg-slate-900 text-white px-6 py-3 rounded-full font-bold shadow-2xl fade-up fixed bottom-8 left-1/2 -translate-x-1/2 z-[200] flex items-center gap-2">
+    <div id="toast" class="hidden toast bg-slate-900 text-white px-6 py-3 rounded-full font-bold shadow-2xl fade-up fixed bottom-8 left-1/2 -translate-x-1/2 z-[200] flex items-center gap-2 border border-white/10">
         <i data-lucide="check-circle" class="text-green-400 w-5 h-5"></i><span id="toast-msg">Success!</span>
     </div>
 
     <!-- ✅ FIREBASE INTEGRATION -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInWithPopup, getRedirectResult, GoogleAuthProvider, onAuthStateChanged, signOut, signInAnonymously, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInWithRedirect, getRedirectResult, GoogleAuthProvider, onAuthStateChanged, signOut, signInAnonymously, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // 🔥 AAPKA PERSONAL CONFIG
+        // 🔥 FIREBASE MASTER CONFIG
         const CONFIG = {
             UPI: "8229084161@okaxis",
             WHATSAPP: "918229084161",
@@ -170,7 +163,7 @@
                 { title: "Visual Mind Maps", sub: "Revision made super fast", img: "https://images.unsplash.com/photo-1544391496-1ca7c97457cd?auto=format&fit=crop&q=80&w=1200" }
             ],
             products: [
-                { id: 101, name: "Physics Notes (Inheritance)", cat: "Notes", price: 199, img: "https://images.unsplash.com/photo-1636466484294-281069788218?auto=format&fit=crop&q=80&w=400", pdf: "https://edudigital1021.github.io/edudigitaltejas-/pdfs/PRINCIPLES%20OF%20INHERITANCE%20AND%20VARIATION.pdf", desc: "Complete Biology/Physics revision material." },
+                { id: 101, name: "Physics Notes (Inheritance)", cat: "Notes", price: 199, img: "https://images.unsplash.com/photo-1636466484294-281069788218?auto=format&fit=crop&q=80&w=400", pdf: "https://edudigital1021.github.io/edudigitaltejas-/pdfs/PRINCIPLES%20OF%20INHERITANCE%20AND%20VARIATION.pdf", desc: "Premium revision material." },
                 { id: 102, name: "Chemistry Concept Map", cat: "Mind Map", price: 99, img: "https://images.unsplash.com/photo-1532187875661-1459a9f5adc9?auto=format&fit=crop&q=80&w=400", pdf: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf", desc: "Detailed chemistry flowcharts." }
             ]
         };
@@ -179,40 +172,52 @@
         let cart = JSON.parse(localStorage.getItem('edu_cart') || '[]');
         let purchased = [];
         let db, auth;
-        const appID = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const appID = typeof __app_id !== 'undefined' ? __app_id : 'default-id';
 
+        // --- 🛡️ Start-up Logic with Timeout ---
         const init = async () => {
+            // Safety Timeout: Hides loader if Firebase fails to respond in 6 seconds
+            const loaderTimeout = setTimeout(() => {
+                const loader = document.getElementById('app-loader');
+                if (loader.style.display !== 'none') {
+                    console.warn("Firebase taking too long... loading app anyway.");
+                    document.getElementById('loader-timer-msg').classList.remove('hidden');
+                    setTimeout(() => hideLoader(), 2000);
+                }
+            }, 6000);
+
             try {
-                const fbApp = initializeApp(MASTER_CONFIG.FIREBASE || CONFIG.FIREBASE);
+                const fbApp = initializeApp(CONFIG.FIREBASE);
                 auth = getAuth(fbApp); db = getFirestore(fbApp);
                 
-                // Persistence Force
                 await setPersistence(auth, browserLocalPersistence);
 
-                // 🔥 MOBILE LOGIN FIX: First check if a real login just happened
                 onAuthStateChanged(auth, (u) => {
-                    console.log("Auth State Changed:", u ? (u.isAnonymous ? "Guest" : u.email) : "No User");
-                    
+                    clearTimeout(loaderTimeout);
                     if (u && !u.isAnonymous) {
                         user = u;
                         sync();
-                        updateUI();
-                        document.getElementById('app-loader').style.display = 'none';
-                    } else if (u && u.isAnonymous) {
-                        user = null; // UI treats anon as guest
-                        updateUI();
-                        render();
-                        document.getElementById('app-loader').style.display = 'none';
                     } else {
-                        // No user at all, only then try anonymous
-                        signInAnonymously(auth).catch(e => console.error("Anon Login Fail:", e));
+                        user = null;
+                        purchased = [];
+                        if (!u) signInAnonymously(auth).catch(()=>{});
+                        render();
                     }
+                    updateUI();
+                    hideLoader();
                 });
 
             } catch(e) { 
-                console.error("Critical Start Error:", e);
-                showAuthError("Firebase connection failed. Check your config.");
+                console.error("Critical Firebase Error:", e);
+                hideLoader();
+                render(); 
             }
+        };
+
+        const hideLoader = () => {
+            const loader = document.getElementById('app-loader');
+            loader.style.opacity = '0';
+            setTimeout(() => loader.style.display = 'none', 500);
         };
 
         const updateUI = () => {
@@ -232,58 +237,20 @@
             onSnapshot(path, (snap) => {
                 purchased = snap.docs.map(d => parseInt(d.id));
                 render();
-            }, (err) => {
-                console.error("Firestore Error:", err);
-                showAuthError("Database access denied. Check security rules.");
-            });
+            }, (err) => console.error("Sync Error:", err));
         };
 
-        // 🔥 USE POPUP FIRST FOR DESKTOP/TESTING
         window.handleLogin = async () => {
             const provider = new GoogleAuthProvider();
-            const btn = document.getElementById('login-btn-txt');
-            btn.innerText = "Checking Google...";
-            
             try {
-                // We use Popup here because Redirect is often blocked in iframes/Canvas
-                await signInWithPopup(auth, provider);
-                toggleLoginModal(false);
-            } catch(e) { 
-                console.error("Login Error Details:", e);
-                showAuthError(e.message);
-                btn.innerText = "Try Again";
-            }
+                document.getElementById('login-btn-txt').innerText = "Opening Google...";
+                await signInWithRedirect(auth, provider);
+            } catch(e) { alert("Login failed. Check internet."); }
         };
 
-        const showAuthError = (msg) => {
-            const box = document.getElementById('auth-error-box');
-            const msgEl = document.getElementById('auth-error-msg');
-            msgEl.innerText = msg;
-            box.classList.remove('hidden');
-        };
-
-        window.handleLogout = async () => { 
-            await signOut(auth); 
-            localStorage.removeItem('edu_cart'); 
-            location.reload(); 
-        };
-
-        window.toggleLoginModal = (s) => {
-            document.getElementById('login-screen').classList.toggle('hidden', !s);
-            if(s) {
-                document.getElementById('auth-error-box').classList.add('hidden');
-                document.getElementById('login-btn-txt').innerText = "Continue with Google";
-            }
-        };
-
-        const checkAuth = () => { 
-            if (!user || user.isAnonymous) { 
-                toggleLoginModal(true); 
-                return false; 
-            } 
-            return true; 
-        };
-
+        window.handleLogout = async () => { await signOut(auth); localStorage.removeItem('edu_cart'); location.reload(); };
+        window.toggleLoginModal = (s) => document.getElementById('login-screen').classList.toggle('hidden', !s);
+        const checkAuth = () => { if (!user || user.isAnonymous) { toggleLoginModal(true); return false; } return true; };
         window.navigateTo = (v, p = null) => { view = v; window.scrollTo({ top: 0, behavior: 'smooth' }); render(p); };
 
         window.setCategory = (c) => {
@@ -302,7 +269,7 @@
             if (cart.find(i => i.id === id)) { navigateTo('cart'); return; }
             cart.push(DATA.products.find(x => x.id === id));
             localStorage.setItem('edu_cart', JSON.stringify(cart));
-            updateCount(); toast("Note added!");
+            updateCount(); toast("Item added!");
         };
 
         window.removeFromCart = (id) => {
@@ -319,7 +286,7 @@
         window.initiatePayment = () => {
             if (cart.length === 0) return;
             const total = cart.reduce((s, i) => s + i.price, 0);
-            window.location.href = `upi://pay?pa=${CONFIG.UPI}&pn=EduDigital&am=${total}&cu=INR&tn=EduNotes`;
+            window.location.href = `upi://pay?pa=${CONFIG.UPI}&pn=EduDigital&am=${total}&cu=INR&tn=StudyNotes`;
             document.getElementById('upi-confirm-modal').classList.remove('hidden');
         };
 
@@ -342,7 +309,6 @@
             if (!c) return;
             if (view === 'home') c.innerHTML = renderHome();
             else if (view === 'product') c.innerHTML = renderDetail(params);
-            else if (view === 'cart') c.innerHTML = renderCart();
             else if (view === 'orders') c.innerHTML = renderLibrary();
             lucide.createIcons();
             updateCount();
@@ -353,7 +319,7 @@
             <div class="space-y-8 fade-up">
                 <div class="relative w-full aspect-[21/9] md:aspect-[21/6] overflow-hidden rounded-[2rem] shadow-xl">
                     <div id="banner-track" class="h-full w-full" style="transform: translateX(-${bIdx * 100}%)">
-                        ${DATA.banners.map(b => `<div class="min-w-full relative h-full flex-shrink-0"><img src="${b.img}" class="w-full h-full object-cover"><div class="absolute inset-0 bg-black/40 p-8 flex flex-col justify-center text-white"><h2 class="text-2xl md:text-5xl font-black">${b.title}</h2><p class="text-sm opacity-80">${b.sub}</p></div></div>`).join('')}
+                        ${DATA.banners.map(b => `<div class="min-w-full relative h-full flex-shrink-0"><img src="${b.img}" class="w-full h-full object-cover" onerror="this.src='https://images.unsplash.com/photo-1517842645767-c639042777db?q=80&w=1200'"><div class="absolute inset-0 bg-black/40 p-8 flex flex-col justify-center text-white"><h2 class="text-2xl md:text-5xl font-black">${b.title}</h2><p class="text-sm opacity-80">${b.sub}</p></div></div>`).join('')}
                     </div>
                     <div class="absolute bottom-6 left-0 right-0 flex justify-center gap-2">
                         ${DATA.banners.map((_, i) => `<div class="banner-dot h-2 w-2 rounded-full bg-white/30 transition-all ${i === bIdx ? 'active' : ''}"></div>`).join('')}
@@ -373,7 +339,7 @@
                     return `
                     <div class="bg-white dark:bg-darkCard p-4 rounded-[2rem] border shadow-sm relative group" onclick="navigateTo('product', ${p.id})">
                         ${owned ? `<div class="absolute top-3 right-3 bg-green-500 text-white p-1 rounded-full z-10 shadow-lg"><i data-lucide="check" class="w-3 h-3"></i></div>` : ''}
-                        <div class="aspect-square overflow-hidden rounded-2xl mb-4"><img src="${p.img}" class="w-full h-full object-cover group-hover:scale-110 transition-duration-700"></div>
+                        <div class="aspect-square overflow-hidden rounded-2xl mb-4"><img src="${p.img}" class="w-full h-full object-cover group-hover:scale-110 transition-duration-500" onerror="this.src='https://images.unsplash.com/photo-1636466484294-281069788218?w=400'"></div>
                         <h3 class="font-bold text-sm line-clamp-1 mb-2">${p.name}</h3>
                         <div class="flex justify-between items-center"><span class="text-primary font-black text-sm">₹${p.price}</span>${!owned ? `<button onclick="event.stopPropagation(); addToCart(${p.id})" class="p-2 bg-indigo-50 dark:bg-indigo-500/10 rounded-xl text-primary hover:bg-primary hover:text-white transition-all"><i data-lucide="shopping-cart" class="w-5 h-5"></i></button>` : ''}</div>
                     </div>`;
@@ -381,43 +347,10 @@
             </div>`;
         };
 
-        const renderDetail = (id) => {
-            const p = DATA.products.find(x => x.id === id);
-            if(!p) return "";
-            const owned = purchased.includes(id);
-            return `<div class="fade-up max-w-4xl mx-auto">
-                <button onclick="navigateTo('home')" class="mb-4 font-bold flex gap-2 items-center text-slate-400 hover:text-primary transition-colors"><i data-lucide="arrow-left" class="w-4 h-4"></i> Back</button>
-                <div class="grid md:grid-cols-2 gap-10 bg-white dark:bg-darkCard p-8 rounded-[3rem] shadow-2xl border dark:border-slate-800">
-                    <img src="${p.img}" class="rounded-3xl aspect-square object-cover shadow-xl">
-                    <div class="flex flex-col justify-center">
-                        <span class="text-primary font-bold text-xs mb-2 uppercase tracking-widest">${p.cat}</span>
-                        <h2 class="text-4xl font-black mb-6 leading-tight">${p.name}</h2>
-                        <p class="mb-8 opacity-60 leading-relaxed text-sm">${p.desc}</p>
-                        ${owned ? `<button onclick="openPDFViewer('${p.pdf}', '${p.name}')" class="w-full bg-green-500 text-white py-5 rounded-2xl font-bold flex items-center justify-center gap-3 shadow-lg active:scale-95 transition-all"><i data-lucide="book-open"></i> Read Now</button>` : `<button onclick="addToCart(${p.id})" class="w-full bg-primary text-white py-5 rounded-2xl font-bold flex items-center justify-center gap-3 shadow-xl active:scale-95 transition-all"><i data-lucide="shopping-cart"></i> Add to Cart - ₹${p.price}</button>`}
-                    </div>
-                </div>
-            </div>`;
-        };
-
-        const renderCart = () => {
-            if (cart.length === 0) return `<div class="py-20 text-center fade-up"><h2 class="text-2xl font-black opacity-30">Cart is Empty</h2></div>`;
-            const total = cart.reduce((s, i) => s + i.price, 0);
-            return `<div class="fade-up max-w-2xl mx-auto">
-                <h2 class="text-3xl font-black mb-8">My Cart</h2>
-                <div class="space-y-4 mb-8">
-                    ${cart.map(item => `<div class="bg-white dark:bg-darkCard p-4 rounded-3xl border flex items-center gap-4 shadow-sm"><img src="${item.img}" class="w-16 h-16 rounded-xl object-cover"><div class="flex-1"><h4 class="font-bold text-sm text-primary">₹${item.price}</h4><p class="font-bold text-sm">${item.name}</p></div><button onclick="removeFromCart(${item.id})" class="p-2 text-red-500 opacity-40 hover:opacity-100 transition-opacity"><i data-lucide="trash-2"></i></button></div>`).join('')}
-                </div>
-                <div class="bg-primary/5 p-8 rounded-[2rem] border shadow-2xl">
-                    <div class="flex justify-between mb-8 text-xl font-black text-primary"><span>Total Amount</span><span>₹${total}</span></div>
-                    <button onclick="initiatePayment()" class="w-full bg-primary text-white py-4 rounded-2xl font-bold">Checkout with UPI</button>
-                </div>
-            </div>`;
-        };
-
         const renderLibrary = () => {
-            if(!user || user.isAnonymous) return `<div class="py-20 text-center"><h2 class="text-xl font-bold opacity-30">Please Login to Access Purchases</h2></div>`;
+            if(!user || user.isAnonymous) return `<div class="py-20 text-center"><h2 class="text-xl font-bold opacity-30">Login please</h2></div>`;
             const list = DATA.products.filter(p => purchased.includes(p.id));
-            if (list.length === 0) return `<div class="py-20 text-center fade-up"><h2 class="text-2xl font-black opacity-30">No Purchases Yet</h2></div>`;
+            if (list.length === 0) return `<div class="py-20 text-center fade-up"><h2 class="text-2xl font-black opacity-30">No Purchases</h2></div>`;
             return `<div class="fade-up max-w-4xl mx-auto">
                 <h2 class="text-3xl font-black mb-8">My Library</h2>
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">${list.map(p => `<div class="bg-white dark:bg-darkCard p-3 rounded-3xl border shadow-sm" onclick="navigateTo('product', ${p.id})"><img src="${p.img}" class="aspect-square object-cover rounded-2xl mb-2"><h3 class="font-bold text-sm line-clamp-1">${p.name}</h3><button class="w-full mt-2 bg-green-500/10 text-green-600 py-2 rounded-xl text-[10px] font-bold uppercase">Unlocked</button></div>`).join('')}</div>
@@ -429,7 +362,6 @@
             const iframe = document.getElementById('pdf-iframe');
             document.getElementById('viewer-title').innerText = title;
             modal.classList.remove('hidden');
-            // Mozilla PDF Viewer Proxy
             iframe.src = `https://mozilla.github.io/pdf.js/web/viewer.html?file=${encodeURIComponent(url)}`;
             lucide.createIcons();
         };
