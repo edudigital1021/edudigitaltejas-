@@ -142,8 +142,7 @@
     <!-- ✅ FIREBASE INTEGRATION -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInWithRedirect, getRedirectResult, GoogleAuthProvider, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
         // 🔥 FIREBASE MASTER CONFIG
         const CONFIG = {
@@ -196,7 +195,6 @@
                 await setPersistence(auth, browserLocalPersistence);
 
                 // 2. Handle Redirect Result (Fixes state loss after login)
-                await getRedirectResult(auth);
 
                 db = getFirestore(fbApp);
 
@@ -256,12 +254,17 @@
         };
 
         window.handleLogin = async () => {
-            const provider = new GoogleAuthProvider();
-            try {
-                document.getElementById('login-btn-txt').innerText = "Opening Google...";
-                await signInWithRedirect(auth, provider);
-            } catch(e) { alert("Login failed. Check internet."); }
-        };
+    const provider = new GoogleAuthProvider();
+    try {
+        document.getElementById('login-btn-txt').innerText = "Opening Google...";
+        const result = await signInWithPopup(auth, provider);
+        console.log("LOGIN SUCCESS:", result.user.email);
+        toggleLoginModal(false);
+    } catch(e) {
+        console.error(e);
+        alert(e.message);
+    }
+};
 
         window.handleLogout = async () => { await signOut(auth); localStorage.removeItem('edu_cart'); location.reload(); };
         window.toggleLoginModal = (s) => document.getElementById('login-screen').classList.toggle('hidden', !s);
