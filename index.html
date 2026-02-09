@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EduDigital | Premium Store</title>
-    <!-- Fonts & Icons -->
+    <title>EduDigital | Ultra Premium Store</title>
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Libraries -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     
@@ -26,33 +27,31 @@
         .glass { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
         .dark .glass { background: rgba(15, 23, 42, 0.7); }
         .hide-scrollbar::-webkit-scrollbar { display: none; }
-        .fade-up { animation: fadeUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+        .fade-up { animation: fadeUp 0.5s ease-out forwards; }
         @keyframes fadeUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        iframe { border: none; width: 100%; height: 100%; border-radius: 1rem; }
         #banner-track { display: flex; transition: transform 0.8s cubic-bezier(0.65, 0, 0.35, 1); }
         .banner-dot.active { width: 1.5rem; background-color: white; opacity: 1; }
-        iframe { border: none; width: 100%; height: 100%; border-radius: 1rem; }
-        .img-placeholder { background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%); }
-        /* Initial Loading screen */
-        #app-loader { position: fixed; inset: 0; background: #0f172a; z-index: 200; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s; }
+        #app-loader { position: fixed; inset: 0; background: #0f172a; z-index: 500; display: flex; flex-direction: column; align-items: center; justify-content: center; }
     </style>
 </head>
 <body class="bg-slate-50 dark:bg-darkBg text-slate-900 dark:text-slate-100 transition-colors duration-300 font-sans">
 
-    <!-- ✅ Start-up Loader (Ensures Auth check finishes first) -->
+    <!-- ✅ Initial App Loader -->
     <div id="app-loader">
-        <div class="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
-        <p class="mt-4 text-slate-400 font-bold tracking-widest text-xs uppercase">Initializing EduDigital...</p>
+        <div class="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+        <p class="mt-4 text-slate-400 font-bold tracking-widest text-[10px] uppercase">Securing your session...</p>
     </div>
 
     <!-- ✅ UPI Confirmation Modal -->
     <div id="upi-confirm-modal" class="fixed inset-0 z-[150] bg-black/80 backdrop-blur-md flex items-center justify-center hidden">
-        <div class="max-w-md w-[90%] p-8 bg-white dark:bg-darkCard rounded-[2.5rem] text-center space-y-6 fade-up shadow-2xl">
-            <div class="w-20 h-20 bg-green-100 text-green-600 rounded-3xl flex items-center justify-center mx-auto"><i data-lucide="shield-check" class="w-10 h-10"></i></div>
-            <h2 class="text-2xl font-black">Confirm Payment</h2>
-            <p class="text-slate-500 text-sm">Agar payment poora ho gaya hai toh nichhe click karein.</p>
+        <div class="max-w-md w-[90%] p-8 bg-white dark:bg-darkCard rounded-[2.5rem] text-center space-y-6 shadow-2xl">
+            <div class="w-20 h-20 bg-green-100 text-green-600 rounded-3xl flex items-center justify-center mx-auto"><i data-lucide="check-circle-2" class="w-10 h-10"></i></div>
+            <h2 class="text-2xl font-black">Payment Confirmation</h2>
+            <p class="text-slate-500 text-sm">Kya aapne payment poora kar liya hai? Click karte hi notes unlock ho jayenge.</p>
             <div class="space-y-3">
-                <button onclick="handlePaymentSuccess()" class="w-full bg-primary text-white py-4 rounded-2xl font-bold shadow-xl active:scale-95 transition-all">I Have Paid - Unlock Now</button>
-                <button onclick="closeUPIModal()" class="w-full text-slate-400 font-bold py-2">Cancel</button>
+                <button onclick="handlePaymentSuccess()" class="w-full bg-primary text-white py-4 rounded-2xl font-bold shadow-xl active:scale-95 transition-all">Yes, I Have Paid</button>
+                <button onclick="closeUPIModal()" class="w-full text-slate-400 font-bold py-2">No, Go Back</button>
             </div>
         </div>
     </div>
@@ -60,25 +59,26 @@
     <!-- ✅ Login Screen -->
     <div id="login-screen" class="fixed inset-0 z-[140] bg-black/60 backdrop-blur-md flex items-center justify-center hidden">
         <div class="max-w-md w-[90%] p-8 bg-white dark:bg-darkCard rounded-[2.5rem] text-center space-y-8 fade-up shadow-2xl relative">
-            <button onclick="toggleLoginModal(false)" class="absolute top-6 right-6 p-2 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full"><i data-lucide="x"></i></button>
+            <button onclick="toggleLoginModal(false)" class="absolute top-6 right-6 p-2 text-slate-400"><i data-lucide="x"></i></button>
             <div class="w-20 h-20 bg-primary/10 text-primary rounded-3xl flex items-center justify-center mx-auto"><i data-lucide="graduation-cap" class="w-10 h-10"></i></div>
-            <h2 class="text-3xl font-black mb-2">Welcome!</h2>
-            <p class="text-slate-500">Log in karke apni library unlock karein.</p>
-            <button onclick="handleLogin()" id="login-btn-txt" class="w-full flex items-center justify-center gap-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 py-4 rounded-2xl font-bold shadow-xl active:scale-95 transition-all">
+            <h2 class="text-3xl font-black">Student Login</h2>
+            <p class="text-slate-500 text-sm">Please log in with Google to sync your library.</p>
+            <button onclick="handleLogin()" id="login-btn-txt" class="w-full flex items-center justify-center gap-4 bg-white dark:bg-slate-800 border py-4 rounded-2xl font-bold shadow-xl active:scale-95 transition-all">
                 <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/action/google.svg" class="w-6 h-6"> Continue with Google
             </button>
+            <p id="auth-error-msg" class="text-red-500 text-[10px] hidden font-bold uppercase"></p>
         </div>
     </div>
 
-    <!-- ✅ Navigation Bar -->
-    <nav class="fixed top-0 w-full z-40 glass border-b border-white/20 dark:border-slate-800 h-16 flex items-center">
-        <div class="max-w-7xl mx-auto px-4 w-full flex items-center justify-between">
+    <!-- ✅ Header -->
+    <nav class="fixed top-0 w-full z-40 glass border-b border-white/20 dark:border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
             <div class="flex items-center gap-4">
                 <button onclick="toggleDrawer(true)" class="p-2 hover:bg-slate-200/50 rounded-full transition-all"><i data-lucide="menu"></i></button>
-                <h1 class="text-xl font-bold text-primary cursor-pointer tracking-tight" onclick="navigateTo('home')">EduDigital</h1>
+                <h1 class="text-xl font-bold text-primary tracking-tight cursor-pointer" onclick="navigateTo('home')">EduDigital</h1>
             </div>
             <div class="flex items-center gap-2">
-                <button onclick="navigateTo('cart')" class="p-2 relative hover:bg-slate-200/50 rounded-full transition-all">
+                <button onclick="navigateTo('cart')" class="p-2 relative hover:bg-slate-200/50 rounded-full">
                     <i data-lucide="shopping-cart"></i>
                     <span id="cart-count" class="absolute top-1 right-1 bg-primary text-white text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full hidden">0</span>
                 </button>
@@ -86,61 +86,62 @@
         </div>
     </nav>
 
-    <!-- ✅ Sidebar Drawer -->
+    <!-- ✅ Sidebar -->
     <div id="drawer-overlay" onclick="toggleDrawer(false)" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 hidden opacity-0 transition-opacity duration-300"></div>
     <div id="sidebar-drawer" class="fixed top-0 left-0 h-full w-[280px] bg-white dark:bg-darkCard z-[60] -translate-x-full transition-transform duration-300 shadow-2xl overflow-y-auto">
         <div class="p-6 h-full flex flex-col">
             <div class="flex items-center gap-3 mb-8">
-                <img id="user-avatar" src="" class="w-11 h-11 rounded-full border-2 border-primary hidden object-cover">
-                <div id="user-info" class="hidden"><p class="font-bold text-sm" id="user-name">User</p><p class="text-[10px] opacity-50 uppercase font-bold text-primary">Member</p></div>
+                <img id="user-avatar" src="" class="w-12 h-12 rounded-full border-2 border-primary hidden object-cover shadow-lg">
+                <div id="user-info" class="hidden"><p class="font-bold text-sm" id="user-name">Loading...</p><p class="text-[10px] text-primary uppercase font-bold">Premium Account</p></div>
                 <div id="guest-info"><p class="font-bold text-sm">Guest User</p><button onclick="toggleLoginModal(true)" class="text-[10px] text-primary font-bold uppercase underline">Login Profile</button></div>
             </div>
             <nav class="space-y-1 flex-1">
-                <button onclick="navigateTo('home'); toggleDrawer(false)" class="w-full flex items-center gap-4 px-4 py-3 rounded-xl hover:bg-indigo-50 dark:hover:bg-indigo-500/10 transition-all font-medium"><i data-lucide="home" class="w-5 h-5"></i> Home</button>
-                <button onclick="navigateTo('orders'); toggleDrawer(false)" class="w-full flex items-center gap-4 px-4 py-3 rounded-xl hover:bg-indigo-50 dark:hover:bg-indigo-500/10 transition-all font-medium text-primary"><i data-lucide="book-open-check" class="w-5 h-5"></i> My Purchases</button>
+                <button onclick="navigateTo('home'); toggleDrawer(false)" class="w-full flex items-center gap-4 px-4 py-3 rounded-xl hover:bg-indigo-50 dark:hover:bg-indigo-500/10 transition-all font-medium"><i data-lucide="home"></i> Home</button>
+                <button onclick="navigateTo('orders'); toggleDrawer(false)" class="w-full flex items-center gap-4 px-4 py-3 rounded-xl hover:bg-indigo-50 dark:hover:bg-indigo-500/10 transition-all font-medium text-primary"><i data-lucide="book-open"></i> My Purchases</button>
                 <hr class="my-4 dark:border-slate-800">
                 <div class="px-4 py-3 flex items-center justify-between font-medium text-sm">
-                    <div class="flex items-center gap-4"><i data-lucide="moon" class="w-5 h-5"></i> Dark Mode</div>
+                    <div class="flex items-center gap-4"><i data-lucide="moon"></i> Dark Mode</div>
                     <label class="relative inline-flex items-center cursor-pointer"><input type="checkbox" id="theme-toggle" class="sr-only peer" onchange="toggleTheme()"><div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div></label>
                 </div>
-                <button onclick="window.open('https://api.whatsapp.com/send?phone=918229084161', '_blank')" class="w-full flex items-center gap-4 px-4 py-3 rounded-xl hover:bg-green-50 text-green-600 transition-all font-medium"><i data-lucide="message-circle" class="w-5 h-5"></i> Support</button>
+                <button onclick="window.open('https://api.whatsapp.com/send?phone=918229084161', '_blank')" class="w-full flex items-center gap-4 px-4 py-3 rounded-xl hover:bg-green-50 text-green-600 font-medium"><i data-lucide="message-circle"></i> Help Support</button>
             </nav>
-            <div class="pt-6 mt-auto border-t dark:border-slate-800"><button id="auth-btn" onclick="handleLogout()" class="w-full flex items-center gap-4 px-4 py-3 rounded-xl hover:bg-red-50 text-red-500 font-medium hidden"><i data-lucide="log-out" class="w-5 h-5"></i> Logout</button></div>
+            <div class="pt-6 mt-auto border-t dark:border-slate-800"><button id="auth-btn" onclick="handleLogout()" class="w-full flex items-center gap-4 px-4 py-3 rounded-xl hover:bg-red-50 text-red-500 font-medium hidden"><i data-lucide="log-out"></i> Logout</button></div>
         </div>
     </div>
 
-    <!-- ✅ Secure PDF Modal -->
+    <!-- ✅ Secure PDF Reader -->
     <div id="pdf-viewer-modal" class="fixed inset-0 z-[160] bg-black/95 hidden flex flex-col p-0 md:p-4">
-        <div class="max-w-5xl mx-auto w-full h-full flex flex-col">
-            <div class="p-4 flex items-center justify-between text-white glass rounded-t-2xl">
-                <h3 id="viewer-title" class="font-bold truncate max-w-[70%] text-sm">Reading Content</h3>
-                <button onclick="closePDF()" class="p-2 rounded-full bg-white/10 hover:bg-red-500 transition-all"><i data-lucide="x"></i></button>
+        <div class="max-w-6xl mx-auto w-full h-full flex flex-col bg-slate-900 md:rounded-3xl overflow-hidden shadow-2xl border border-white/10">
+            <div class="p-4 flex items-center justify-between text-white glass border-b border-white/10">
+                <h3 id="viewer-title" class="font-bold text-sm md:text-base truncate max-w-[70%]">Loading Document...</h3>
+                <button onclick="closePDF()" class="p-2.5 rounded-full bg-white/10 hover:bg-red-500 transition-all active:scale-90"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
-            <div class="flex-1 bg-white relative overflow-hidden">
-                <iframe id="pdf-iframe" src="" class="w-full h-full"></iframe>
+            <div class="flex-1 relative bg-slate-900">
+                <div id="pdf-loader" class="absolute inset-0 flex flex-col items-center justify-center z-50 bg-slate-900">
+                    <div class="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+                    <p class="mt-4 text-[10px] font-bold text-slate-500 tracking-widest uppercase">Opening Secured PDF...</p>
+                </div>
+                <iframe id="pdf-iframe" src="" class="w-full h-full opacity-0 transition-opacity duration-500" onload="this.style.opacity='1'; document.getElementById('pdf-loader').style.display='none'"></iframe>
             </div>
         </div>
     </div>
 
-    <!-- ✅ App Area -->
     <main id="app-view" class="pt-20 pb-24 px-4 max-w-7xl mx-auto min-h-screen"></main>
     
-    <!-- ✅ Toast Notification -->
     <div id="toast" class="hidden toast bg-slate-900 text-white px-6 py-3 rounded-full font-bold shadow-2xl fade-up fixed bottom-8 left-1/2 -translate-x-1/2 z-[200] flex items-center gap-2 border border-white/10">
         <i data-lucide="check-circle" class="text-green-400 w-5 h-5"></i><span id="toast-msg">Success!</span>
     </div>
 
-    <!-- ✅ FIREBASE CORE SCRIPT -->
+    <!-- ✅ FIREBASE INTEGRATION -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInWithRedirect, getRedirectResult, GoogleAuthProvider, onAuthStateChanged, signOut, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInWithRedirect, getRedirectResult, GoogleAuthProvider, onAuthStateChanged, signOut, signInAnonymously, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // ✅ FIRMLY HARDCODED CONFIG (Iska screen shot aapne diya tha)
-        const MASTER_CONFIG = {
-            UPI_ID: "8229084161@okaxis",
+        // 🔥 AAPKA FIREBASE CONFIG
+        const CONFIG = {
+            UPI: "8229084161@okaxis",
             WHATSAPP: "918229084161",
-            STORE_NAME: "EduDigital",
             FIREBASE: {
                 apiKey: "AIzaSyCD2oJM0OzhhwI_prJSde4AI55lVJKqeE4",
                 authDomain: "edudigitaltejas.firebaseapp.com",
@@ -154,91 +155,110 @@
         const DATA = {
             categories: ['All', 'Notes', 'Mind Map', 'PDFs'],
             banners: [
-                { title: "Ace Your Exams", sub: "Handwritten notes for Class 12", img: "https://images.unsplash.com/photo-1517842645767-c639042777db?auto=format&fit=crop&q=80&w=1200" },
-                { title: "Revision Maps", sub: "Quick study with Mind Maps", img: "https://images.unsplash.com/photo-1544391496-1ca7c97457cd?auto=format&fit=crop&q=80&w=1200" }
+                { title: "Ace Exams 2026", sub: "Handwritten notes for Class 12", img: "https://images.unsplash.com/photo-1517842645767-c639042777db?auto=format&fit=crop&q=80&w=1200" },
+                { title: "Visual Mind Maps", sub: "Faster revision, better marks", img: "https://images.unsplash.com/photo-1544391496-1ca7c97457cd?auto=format&fit=crop&q=80&w=1200" }
             ],
             products: [
-                { id: 101, name: "Physics Class 12 Notes", cat: "Notes", price: 199, img: "https://images.unsplash.com/photo-1636466484294-281069788218?auto=format&fit=crop&q=80&w=400", pdf: "https://edudigital1021.github.io/edudigitaltejas-/pdfs/PRINCIPLES%20OF%20INHERITANCE%20AND%20VARIATION.pdf", desc: "Best Physics Revision Notes." },
-                { id: 102, name: "Organic Chemistry Map", cat: "Mind Map", price: 99, img: "https://images.unsplash.com/photo-1532187875661-1459a9f5adc9?auto=format&fit=crop&q=80&w=400", pdf: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf", desc: "Full Organic reaction maps." }
+                { id: 101, name: "Physics Class 12 Notes", cat: "Notes", price: 199, img: "https://images.unsplash.com/photo-1636466484294-281069788218?auto=format&fit=crop&q=80&w=400", pdf: "https://edudigital1021.github.io/edudigitaltejas-/pdfs/PRINCIPLES%20OF%20INHERITANCE%20AND%20VARIATION.pdf", desc: "Complete Revision Notes." },
+                { id: 102, name: "Organic Chemistry Map", cat: "Mind Map", price: 99, img: "https://images.unsplash.com/photo-1532187875661-1459a9f5adc9?auto=format&fit=crop&q=80&w=400", pdf: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf", desc: "Detailed visual reaction map." }
             ]
         };
 
-        // --- System Logic ---
-        let currentUser = null, currentView = 'home', activeCat = 'All', bIdx = 0;
+        let user = null, view = 'home', activeCat = 'All', bIdx = 0;
         let cart = JSON.parse(localStorage.getItem('edu_cart') || '[]');
-        let purchasedIds = []; 
+        let purchased = [];
         let db, auth;
-        const appID = typeof __app_id !== 'undefined' ? __app_id : 'default-id';
+        const appID = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
 
-        const startup = async () => {
+        const init = async () => {
             try {
-                const fbApp = initializeApp(MASTER_CONFIG.FIREBASE);
+                const fbApp = initializeApp(CONFIG.FIREBASE);
                 auth = getAuth(fbApp); db = getFirestore(fbApp);
                 
-                // Get result after Redirect login
-                getRedirectResult(auth).catch(e => console.error(e));
+                // Set persistence to Local so login stays active
+                await setPersistence(auth, browserLocalPersistence);
 
-                onAuthStateChanged(auth, (userState) => {
-                    currentUser = (userState && !userState.isAnonymous) ? userState : null;
-                    updateUI();
-                    if (currentUser) {
-                        syncPurchases();
+                // Check for Redirect Result (Crucial for mobile)
+                const result = await getRedirectResult(auth);
+                if (result?.user) {
+                    console.log("Logged in via Redirect!");
+                }
+
+                onAuthStateChanged(auth, (u) => {
+                    if (u && !u.isAnonymous) {
+                        user = u;
+                        sync();
                     } else {
-                        purchasedIds = [];
+                        user = null;
+                        purchased = [];
+                        // Only sign in anonymously if NO user is currently processing
+                        if (!u) signInAnonymously(auth).catch(()=>{});
                         render();
                     }
-                    // Hide loader after auth check is done
-                    document.getElementById('app-loader').style.opacity = '0';
-                    setTimeout(() => document.getElementById('app-loader').style.display = 'none', 500);
+                    updateUI();
+                    // Hide startup loader
+                    document.getElementById('app-loader').style.display = 'none';
                 });
 
-                // Auto-silent login for anonymous if not logged in
-                if(!auth.currentUser) signInAnonymously(auth).catch(()=>{});
             } catch(e) { 
-                console.error("Firebase Error:", e);
-                render();
+                console.error(e); 
+                document.getElementById('app-loader').style.display = 'none';
+                render(); 
             }
         };
 
         const updateUI = () => {
-            const isLog = !!currentUser;
-            const avatar = document.getElementById('user-avatar');
-            if(avatar) avatar.src = isLog ? (currentUser.photoURL || `https://ui-avatars.com/api/?name=${currentUser.displayName}`) : "";
+            const isLog = user && !user.isAnonymous;
+            const av = document.getElementById('user-avatar');
+            if(av) av.src = isLog ? (user.photoURL || `https://ui-avatars.com/api/?name=${user.displayName}`) : "";
             document.getElementById('user-avatar')?.classList.toggle('hidden', !isLog);
             document.getElementById('user-info')?.classList.toggle('hidden', !isLog);
-            if(isLog) document.getElementById('user-name').innerText = currentUser.displayName;
+            if(isLog) document.getElementById('user-name').innerText = user.displayName;
             document.getElementById('guest-info')?.classList.toggle('hidden', isLog);
             document.getElementById('auth-btn')?.classList.toggle('hidden', !isLog);
         };
 
-        const syncPurchases = () => {
-            if (!db || !currentUser) return;
-            const collPath = collection(db, 'artifacts', appID, 'users', currentUser.uid, 'purchases');
-            onSnapshot(collPath, (snap) => {
-                purchasedIds = snap.docs.map(doc => parseInt(doc.id));
+        const sync = () => {
+            if (!db || !user) return;
+            const path = collection(db, 'artifacts', appID, 'users', user.uid, 'purchases');
+            onSnapshot(path, (snap) => {
+                purchased = snap.docs.map(d => parseInt(d.id));
                 render();
+            }, (err) => {
+                console.error("Firestore Error:", err);
+                document.getElementById('auth-error-msg').innerText = "Database Access Denied. Check Rules.";
+                document.getElementById('auth-error-msg').classList.remove('hidden');
             });
         };
 
         window.handleLogin = async () => {
             const provider = new GoogleAuthProvider();
-            document.getElementById('login-btn-txt').innerText = "Redirecting...";
-            signInWithRedirect(auth, provider);
+            try {
+                document.getElementById('login-btn-txt').innerText = "Redirecting to Google...";
+                await signInWithRedirect(auth, provider);
+            } catch(e) { 
+                alert("Login Error. Check Internet."); 
+            }
         };
 
-        window.handleLogout = async () => { if (auth) await signOut(auth); localStorage.removeItem('edu_cart'); location.reload(); };
-        window.toggleLoginModal = (s) => document.getElementById('login-screen').classList.toggle('hidden', !s);
-        const checkAuth = () => { if (!currentUser) { toggleLoginModal(true); return false; } return true; };
-        window.navigateTo = (v, p = null) => { currentView = v; window.scrollTo({ top: 0, behavior: 'smooth' }); render(p); };
+        window.handleLogout = async () => { 
+            await signOut(auth); 
+            localStorage.removeItem('edu_cart'); 
+            location.reload(); 
+        };
 
-        window.setCategory = (cat) => {
-            activeCat = cat;
-            if (currentView !== 'home') { navigateTo('home'); return; }
-            const grid = document.getElementById('product-grid-wrapper');
-            if (grid) { grid.innerHTML = renderGrid(); lucide.createIcons(); }
-            document.querySelectorAll('.cat-btn').forEach(btn => {
-                const isActive = btn.getAttribute('data-cat') === cat;
-                btn.className = `cat-btn px-6 py-2.5 rounded-full whitespace-nowrap font-bold transition-all shadow-sm ${isActive ? 'bg-primary text-white scale-105' : 'bg-white dark:bg-darkCard text-slate-400'}`;
+        window.toggleLoginModal = (s) => document.getElementById('login-screen').classList.toggle('hidden', !s);
+        const checkAuth = () => { if (!user || user.isAnonymous) { toggleLoginModal(true); return false; } return true; };
+        window.navigateTo = (v, p = null) => { view = v; window.scrollTo({ top: 0, behavior: 'smooth' }); render(p); };
+
+        window.setCategory = (c) => {
+            activeCat = c;
+            if (view !== 'home') { navigateTo('home'); return; }
+            const w = document.getElementById('product-grid-wrapper');
+            if (w) { w.innerHTML = renderGrid(); lucide.createIcons(); }
+            document.querySelectorAll('.cat-btn').forEach(b => {
+                const isA = b.getAttribute('data-cat') === c;
+                b.className = `cat-btn px-6 py-2.5 rounded-full whitespace-nowrap font-bold transition-all shadow-sm ${isA ? 'bg-primary text-white scale-105' : 'bg-white dark:bg-darkCard text-slate-400'}`;
             });
         };
 
@@ -247,16 +267,16 @@
             if (cart.find(i => i.id === id)) { navigateTo('cart'); return; }
             cart.push(DATA.products.find(x => x.id === id));
             localStorage.setItem('edu_cart', JSON.stringify(cart));
-            updateBadge(); toast("Added to Cart!");
+            updateCount(); toast("Item added!");
         };
 
         window.removeFromCart = (id) => {
             cart = cart.filter(i => i.id !== id);
             localStorage.setItem('edu_cart', JSON.stringify(cart));
-            updateBadge(); render();
+            updateCount(); render();
         };
 
-        const updateBadge = () => {
+        const updateCount = () => {
             const b = document.getElementById('cart-count');
             if (b) { b.innerText = cart.length; b.classList.toggle('hidden', cart.length === 0); }
         };
@@ -264,35 +284,34 @@
         window.initiatePayment = () => {
             if (cart.length === 0) return;
             const total = cart.reduce((s, i) => s + i.price, 0);
-            const url = `upi://pay?pa=${MASTER_CONFIG.UPI_ID}&pn=EduDigital&am=${total}&cu=INR&tn=Notes`;
-            window.location.href = url;
+            window.location.href = `upi://pay?pa=${CONFIG.UPI}&pn=EduDigital&am=${total}&cu=INR&tn=StudyNotes`;
             document.getElementById('upi-confirm-modal').classList.remove('hidden');
         };
 
         window.closeUPIModal = () => document.getElementById('upi-confirm-modal').classList.add('hidden');
 
         window.handlePaymentSuccess = async () => {
-            if (!currentUser || !db) return;
+            if (!user || !db) return;
             for (let item of cart) {
-                const docRef = doc(db, 'artifacts', appID, 'users', currentUser.uid, 'purchases', item.id.toString());
-                await setDoc(docRef, { id: item.id, name: item.name, date: new Date().toISOString() });
+                const ref = doc(db, 'artifacts', appID, 'users', user.uid, 'purchases', item.id.toString());
+                await setDoc(ref, { id: item.id, name: item.name, date: new Date().toISOString() });
             }
             cart = []; localStorage.setItem('edu_cart', "[]");
             closeUPIModal();
-            alert("Success! Check My Purchases.");
+            alert("Unlocked! Notes ab My Purchases mein dekhein.");
             navigateTo('orders');
         };
 
         function render(params) {
-            const container = document.getElementById('app-view');
-            if (!container) return;
-            if (currentView === 'home') container.innerHTML = renderHome();
-            else if (currentView === 'product') container.innerHTML = renderDetail(params);
-            else if (currentView === 'cart') container.innerHTML = renderCart();
-            else if (currentView === 'orders') container.innerHTML = renderLibrary();
+            const c = document.getElementById('app-view');
+            if (!c) return;
+            if (view === 'home') c.innerHTML = renderHome();
+            else if (view === 'product') c.innerHTML = renderDetail(params);
+            else if (view === 'cart') c.innerHTML = renderCart();
+            else if (view === 'orders') c.innerHTML = renderLibrary();
             lucide.createIcons();
-            updateBadge();
-            if (currentView === 'home') cycleBanners();
+            updateCount();
+            if (view === 'home') cycle();
         }
 
         const renderHome = () => `
@@ -315,13 +334,13 @@
             const list = activeCat === 'All' ? DATA.products : DATA.products.filter(p => p.cat === activeCat);
             return `<div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 fade-up">
                 ${list.map(p => {
-                    const owned = purchasedIds.includes(p.id);
+                    const owned = purchased.includes(p.id);
                     return `
-                    <div class="bg-white dark:bg-darkCard p-4 rounded-[2rem] border shadow-sm relative group" onclick="navigateTo('product', ${p.id})">
+                    <div class="bg-white dark:bg-darkCard p-4 rounded-[2rem] border shadow-sm relative group product-card transition-all" onclick="navigateTo('product', ${p.id})">
                         ${owned ? `<div class="absolute top-3 right-3 bg-green-500 text-white p-1 rounded-full z-10 shadow-lg"><i data-lucide="check" class="w-3 h-3"></i></div>` : ''}
-                        <div class="aspect-square overflow-hidden rounded-2xl mb-4 img-placeholder"><img src="${p.img}" class="w-full h-full object-cover group-hover:scale-110 transition-duration-500"></div>
+                        <div class="aspect-square overflow-hidden rounded-2xl mb-4 img-placeholder"><img src="${p.img}" class="w-full h-full object-cover group-hover:scale-110 transition-all duration-700"></div>
                         <h3 class="font-bold text-sm line-clamp-1 mb-2">${p.name}</h3>
-                        <div class="flex justify-between items-center"><span class="text-primary font-black text-sm">₹${p.price}</span>${!owned ? `<button onclick="event.stopPropagation(); addToCart(${p.id})" class="p-1.5 bg-slate-100 dark:bg-slate-800 rounded-lg text-primary hover:bg-primary hover:text-white transition-all"><i data-lucide="shopping-cart" class="w-4 h-4"></i></button>` : ''}</div>
+                        <div class="flex justify-between items-center"><span class="text-primary font-black">₹${p.price}</span>${!owned ? `<button onclick="event.stopPropagation(); addToCart(${p.id})" class="p-2 bg-indigo-50 dark:bg-indigo-500/10 rounded-xl text-primary hover:bg-primary hover:text-white transition-all"><i data-lucide="shopping-cart" class="w-5 h-5"></i></button>` : ''}</div>
                     </div>`;
                 }).join('')}
             </div>`;
@@ -330,64 +349,65 @@
         const renderDetail = (id) => {
             const p = DATA.products.find(x => x.id === id);
             if(!p) return "";
-            const owned = purchasedIds.includes(id);
+            const owned = purchased.includes(id);
             return `<div class="fade-up max-w-4xl mx-auto">
-                <button onclick="navigateTo('home')" class="mb-4 font-bold flex gap-2 items-center text-slate-400"><i data-lucide="arrow-left" class="w-4 h-4"></i> Back</button>
-                <div class="grid md:grid-cols-2 gap-8 bg-white dark:bg-darkCard p-6 rounded-[2.5rem] shadow-xl border dark:border-slate-800">
-                    <img src="${p.img}" class="rounded-3xl aspect-square object-cover shadow-lg img-placeholder">
+                <button onclick="navigateTo('home')" class="mb-6 font-bold flex gap-2 items-center text-slate-400 hover:text-primary transition-colors"><i data-lucide="arrow-left"></i> Back</button>
+                <div class="grid md:grid-cols-2 gap-10 bg-white dark:bg-darkCard p-8 rounded-[3rem] shadow-2xl border dark:border-slate-800">
+                    <img src="${p.img}" class="rounded-3xl aspect-square object-cover shadow-xl img-placeholder">
                     <div class="flex flex-col justify-center">
-                        <span class="text-primary font-bold text-xs mb-1 uppercase tracking-widest">${p.cat}</span>
-                        <h2 class="text-3xl font-black mb-4">${p.name}</h2>
-                        <p class="mb-8 opacity-60 leading-relaxed">${p.desc}</p>
-                        ${owned ? `<button onclick="viewPDF('${p.pdf}', '${p.name}')" class="w-full bg-green-500 text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-2 transition-all"><i data-lucide="eye"></i> Read Now</button>` : `<button onclick="addToCart(${p.id})" class="w-full bg-primary text-white py-4 rounded-2xl font-bold shadow-lg shadow-primary/30 active:scale-95 transition-all flex items-center justify-center gap-2"><i data-lucide="shopping-cart"></i> Add to Cart - ₹${p.price}</button>`}
+                        <span class="text-primary font-bold text-xs mb-2 uppercase tracking-widest">${p.cat}</span>
+                        <h2 class="text-4xl font-black mb-6 leading-tight">${p.name}</h2>
+                        <p class="mb-8 opacity-60 leading-relaxed text-sm">${p.desc}</p>
+                        ${owned ? `<button onclick="openPDFViewer('${p.pdf}', '${p.name}')" class="w-full bg-green-500 text-white py-5 rounded-2xl font-bold flex items-center justify-center gap-2 active:scale-95 transition-all"><i data-lucide="book-open"></i> Read Now</button>` : `<button onclick="addToCart(${p.id})" class="w-full bg-primary text-white py-5 rounded-2xl font-bold flex items-center justify-center gap-3 shadow-xl active:scale-95 transition-all"><i data-lucide="shopping-cart"></i> Add to Cart - ₹${p.price}</button>`}
                     </div>
                 </div>
             </div>`;
         };
 
         const renderCart = () => {
-            if (cart.length === 0) return `<div class="py-20 text-center fade-up"><h2 class="text-2xl font-black opacity-30">Cart is Empty</h2></div>`;
+            if (cart.length === 0) return `<div class="py-20 text-center fade-up"><h2 class="text-2xl font-black opacity-30">Your Cart is Empty</h2></div>`;
             const total = cart.reduce((s, i) => s + i.price, 0);
             return `<div class="fade-up max-w-2xl mx-auto">
-                <h2 class="text-3xl font-black mb-8">Cart</h2>
+                <h2 class="text-3xl font-black mb-8 text-center">My Cart</h2>
                 <div class="space-y-4 mb-8">
-                    ${cart.map(item => `<div class="bg-white dark:bg-darkCard p-4 rounded-3xl border flex items-center gap-4 shadow-sm"><img src="${item.img}" class="w-16 h-16 rounded-xl object-cover img-placeholder"><div class="flex-1"><h4 class="font-bold text-sm">${item.name}</h4><p class="text-primary font-black">₹${item.price}</p></div><button onclick="removeFromCart(${item.id})" class="p-2 text-red-500 opacity-40 transition-opacity"><i data-lucide="trash-2"></i></button></div>`).join('')}
+                    ${cart.map(item => `<div class="bg-white dark:bg-darkCard p-4 rounded-3xl border flex items-center gap-4 shadow-sm"><img src="${item.img}" class="w-16 h-16 rounded-xl object-cover img-placeholder"><div class="flex-1"><h4 class="font-bold text-sm text-primary">₹${item.price}</h4><p class="font-bold text-sm">${item.name}</p></div><button onclick="removeFromCart(${item.id})" class="p-2 text-red-500 opacity-40 hover:opacity-100 transition-opacity"><i data-lucide="trash-2"></i></button></div>`).join('')}
                 </div>
                 <div class="bg-primary/5 p-8 rounded-[2rem] border shadow-2xl">
-                    <div class="flex justify-between mb-6 text-xl font-black text-primary"><span>Total</span><span>₹${total}</span></div>
-                    <button onclick="initiatePayment()" class="w-full bg-primary text-white py-4 rounded-2xl font-bold">Pay via UPI</button>
+                    <div class="flex justify-between mb-8 text-xl font-black text-primary"><span>Total Amount</span><span>₹${total}</span></div>
+                    <button onclick="initiateCheckout()" class="w-full bg-primary text-white py-4 rounded-2xl font-bold">Secure Checkout (UPI)</button>
                 </div>
             </div>`;
         };
 
         const renderLibrary = () => {
-            if(!currentUser) return `<div class="py-20 text-center"><h2 class="text-xl font-bold opacity-30">Log in to view purchases</h2></div>`;
-            const list = DATA.products.filter(p => purchasedIds.includes(p.id));
-            if (list.length === 0) return `<div class="py-20 text-center fade-up"><h2 class="text-2xl font-black opacity-30">No Books Found</h2></div>`;
+            if(!user || user.isAnonymous) return `<div class="py-20 text-center"><h2 class="text-xl font-bold opacity-30">Login with Google to see purchases</h2></div>`;
+            const list = DATA.products.filter(p => purchased.includes(p.id));
+            if (list.length === 0) return `<div class="py-20 text-center fade-up"><h2 class="text-2xl font-black opacity-30">No Purchases Found</h2><p class="text-slate-400 mt-2 text-xs">Kharide huye notes yahan dikhenge.</p></div>`;
             return `<div class="fade-up max-w-4xl mx-auto">
                 <h2 class="text-3xl font-black mb-8">My Library</h2>
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">${list.map(p => `<div class="bg-white dark:bg-darkCard p-3 rounded-3xl border shadow-sm" onclick="navigateTo('product', ${p.id})"><img src="${p.img}" class="aspect-square object-cover rounded-2xl mb-2 img-placeholder"><h3 class="font-bold text-sm line-clamp-1">${p.name}</h3><button class="w-full mt-2 bg-green-500/10 text-green-600 py-2 rounded-xl text-[10px] font-bold">UNLOCKED</button></div>`).join('')}</div>
             </div>`;
         };
 
-        window.viewPDF = (url, title) => {
-            document.getElementById('pdf-viewer-modal').classList.remove('hidden');
+        window.openPDFViewer = (url, title) => {
+            const modal = document.getElementById('pdf-viewer-modal');
+            const iframe = document.getElementById('pdf-iframe');
             document.getElementById('viewer-title').innerText = title;
-            // Use Google Docs Viewer Wrapper for mobile compatibility
-            const viewerLink = `https://docs.google.com/viewer?url=${encodeURIComponent(url)}&embedded=true`;
-            document.getElementById('pdf-iframe').src = viewerLink;
+            modal.classList.remove('hidden');
+            iframe.src = `https://mozilla.github.io/pdf.js/web/viewer.html?file=${encodeURIComponent(url)}`;
             lucide.createIcons();
         };
+
         window.closePDF = () => { document.getElementById('pdf-viewer-modal').classList.add('hidden'); document.getElementById('pdf-iframe').src = ""; };
         window.toggleDrawer = (s) => { document.getElementById('sidebar-drawer').classList.toggle('-translate-x-full', !s); document.getElementById('drawer-overlay').classList.toggle('hidden', !s); if (s) setTimeout(() => document.getElementById('drawer-overlay').classList.add('opacity-100'), 10); };
         window.toggleTheme = () => { localStorage.setItem('theme', document.documentElement.classList.toggle('dark') ? 'dark' : 'light'); };
         function toast(m) { const t = document.getElementById('toast'); document.getElementById('toast-msg').innerText = m; t.classList.remove('hidden'); setTimeout(() => t.classList.add('hidden'), 3000); lucide.createIcons(); }
 
-        function cycleBanners() {
-            if (window.interval) clearInterval(window.interval);
-            window.interval = setInterval(() => {
+        function cycle() {
+            if (window.i) clearInterval(window.i);
+            window.i = setInterval(() => {
                 const t = document.getElementById('banner-track');
-                if (!t || currentView !== 'home') return;
+                if (!t || view !== 'home') return;
                 bIdx = (bIdx + 1) % DATA.banners.length;
                 t.style.transform = `translateX(-${bIdx * 100}%)`;
                 document.querySelectorAll('.banner-dot').forEach((d, i) => d.classList.toggle('active', i === bIdx));
@@ -395,7 +415,7 @@
         }
 
         if (localStorage.getItem('theme') === 'dark') document.documentElement.classList.add('dark');
-        startup();
+        init();
         lucide.createIcons();
     </script>
 </body>
